@@ -49,11 +49,11 @@ void init() {
 
 
 int main() {
-	//vec4 v(1, 0, 0, 1);
-	//mat4x4 trans(1.0);
-	//trans=translate(trans, vec3(1.0, 1.0, 0.0));
-	//v = trans * v;
-	//cout << v.x<<v.y<<v.z<<v.w << endl;
+	/*vec4 v(1, 0, 0, 1);
+	mat4x4 trans(1.0);
+	trans=translate(trans, vec3(1.0, 1.0, 0.0));
+	v = trans * v;
+	cout << v.x<<v.y<<v.z<<v.w << endl;*/
 
 	init();
 
@@ -199,6 +199,7 @@ int main() {
 
 
 
+
 	while (!glfwWindowShouldClose(w) )	{
 		process_input(w);
 
@@ -208,6 +209,7 @@ int main() {
 
 		//unsigned int color_uni = glGetUniformLocation(shader_prog, "color");
 		float time = glfwGetTime();
+		//cout << time << endl;
 		//s.set_uniform_float("color", sin(time) / 2.0 + 0.5, sin(time + 2.0 / 3.0 * 3.1415) / 2.0 + 0.5, sin(time + 4.0 / 3.0 * 3.1415) / 2.0 + 0.5);
 		//glUniform3f(color_uni, sin(time)/2.0+0.5, sin(time+2.0/3.0*3.1415)/2.0+0.5, sin(time + 4.0 / 3.0 * 3.1415) / 2.0 + 0.5);
 
@@ -222,10 +224,19 @@ int main() {
 
 		//cout << time<<"\ttransp:"<<tranparency << endl;
 		s.set_uniform_1f("tranparency", tranparency);
-		glDrawElements(GL_TRIANGLES,sizeof(idxs),GL_UNSIGNED_INT,0);
 
+		mat4x4 trans = mat4x4(1.0f);
+		
+		trans = translate(trans, vec3(0.5, 0.5, 0));
+		trans = scale(trans, vec3(0.5, 0.5, 0.5));
+		trans = glm::rotate(trans, (float)time, vec3(0, 0, 1));
+		
+		s.set_transform_mat("transform", trans);
+		glDrawElements(GL_TRIANGLES,sizeof(idxs),GL_UNSIGNED_INT,0);
+		
 		glfwSwapBuffers(w);
 		glfwPollEvents();
+
 	}
 	s.delete_program();
 	glDeleteBuffers(1, &vbo_id);
