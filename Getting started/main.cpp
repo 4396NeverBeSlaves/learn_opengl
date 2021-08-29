@@ -10,8 +10,8 @@
 using namespace std;
 using namespace glm;
 
-const int WIDTH = 1200;
-const int HEIGHT = 1200;
+const int WIDTH = 900;
+const int HEIGHT = 900;
 
 void framebuf_size_callback(GLFWwindow *w,int width,int height) {
 	glViewport(0, 0, width, height);
@@ -115,10 +115,11 @@ int main() {
 	Shader s("vertex shader.vert", "frag shader.frag");
 
 	float vertices[] = {
+	//vertex		color				uv 
 	-0.5,-0.5,0.0,	1.0,0.0,0.0,		0.0,0.0,	//left bottom
 	0.5,-0.5,0.0,	0.0,1.0,0.0,		1.0,0.0,	//right bottom
 	-0.5,0.5,0.0,	0.0,0.0,1.0,		0.0,1.0,	//left up
-	0.5,0.5,0.0,		1.0,0.0,0.0,		1.0,1.0//right up
+	0.5,0.5,0.0,	1.0,0.0,0.0,		1.0,1.0		//right up
 	};
 	unsigned int idxs[] = {
 		0,1,2,
@@ -225,15 +226,27 @@ int main() {
 		//cout << time<<"\ttransp:"<<tranparency << endl;
 		s.set_uniform_1f("tranparency", tranparency);
 
-		mat4x4 trans = mat4x4(1.0f);
-		
-		trans = translate(trans, vec3(0.5, 0.5, 0));
-		trans = scale(trans, vec3(0.5, 0.5, 0.5));
-		trans = glm::rotate(trans, (float)time, vec3(0, 0, 1));
-		
-		s.set_transform_mat("transform", trans);
+		//mat4x4 trans = mat4x4(1.0f);
+		//
+		//trans = translate(trans, vec3(0.5, 0.5, 0));
+		//trans = rotate(trans, (float)time, vec3(0, 0, 1));
+		//trans = scale(trans, vec3(0.5, 0.5, 0.5));
+		//
+		//s.set_matrix("transform", trans);
+
+		mat4 model = mat4(1.0f);
+		mat4 view = mat4(1.0f);
+		mat4 proj = mat4(1.0f);
+		model = rotate(model, (float)radians(-55.0f), vec3(1.0f, 0.0f, 0.0f));
+		view = translate(view, vec3(0, 0, -3.0f));
+		proj = perspective((float)radians(45.0f), (float)(WIDTH / HEIGHT), 0.1f, 100.0f);
+
+		s.set_matrix("model", model);
+		s.set_matrix("view", view);
+		s.set_matrix("projection", proj);
+
 		glDrawElements(GL_TRIANGLES,sizeof(idxs),GL_UNSIGNED_INT,0);
-		
+
 		glfwSwapBuffers(w);
 		glfwPollEvents();
 

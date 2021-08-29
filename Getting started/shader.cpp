@@ -55,7 +55,7 @@ void Shader::check_shader(int shader) {
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &compile_status);
 	if (!compile_status) {
 		glGetShaderInfoLog(shader, 512, NULL, log);
-		cout << "vertex shader compile failed:" << log << endl;
+		cout << "Shader compile failed:" << log << endl;
 	}
 }
 
@@ -93,6 +93,6 @@ void Shader::set_texture(const string& name, unsigned int texture) {
 	glUniform1i(glGetUniformLocation(id,name.c_str()),texture);
 }
 
-void Shader::set_transform_mat(const string& name, glm::mat4 trans) {
-	glUniformMatrix4fv(glGetUniformLocation(id,name.c_str()),1,false,glm::value_ptr(trans));
+void Shader::set_matrix(const string& name, glm::mat4 mat) {
+	glUniformMatrix4fv(glGetUniformLocation(id,name.c_str()),1,false,glm::value_ptr(mat));
 }

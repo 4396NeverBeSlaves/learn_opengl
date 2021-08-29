@@ -24,7 +24,7 @@ public:
 	void set_uniform_int(const string& name, int x, int y, int z);
 	void set_uniform_bool(const string& name, bool x, bool y, bool z);
 	void set_texture(const string& name,unsigned int texture);
-	void set_transform_mat(const string& name, glm::mat4 trans);
+	void set_matrix(const string& name, glm::mat4 mat);
 
 private:
 	void check_shader(int shader);
