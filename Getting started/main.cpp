@@ -1,4 +1,5 @@
 #include<iostream>
+#include<format>
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
 #include<glm/glm.hpp>
@@ -6,12 +7,17 @@
 #include<glm/gtc/type_ptr.hpp>
 #include"shader.h"
 #include"stb_image.h"
+#include"camera.h"
 
 using namespace std;
 using namespace glm;
 
 const int WIDTH = 900;
 const int HEIGHT = 900;
+vec3 cam_pos(0, 0, 3);
+vec3 cam_dir(0, 0, -1);
+vec3 cam_up(0, 1, 0);
+Camera cam(cam_pos,cam_dir,cam_up);
 
 void framebuf_size_callback(GLFWwindow *w,int width,int height) {
 	glViewport(0, 0, width, height);
@@ -22,14 +28,21 @@ void framebuf_size_callback(GLFWwindow *w,int width,int height) {
 	cout << "resizing window: w:" << width << " h: " << height << endl<< endl;
 }
 
-void process_input(GLFWwindow *w) {
-	if (glfwGetKey(w, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-		glfwSetWindowShouldClose(w, true);
-	}
+float current_time=0.0;
+float old_time;
+float delta_time;
+float get_delta_time() {
+	old_time = current_time;
+	current_time = glfwGetTime();
+	return current_time - old_time;
 }
 
 float tranparency = 0.5;
 void key_callback(GLFWwindow* w,int key,int scannode,int action,int mods) {
+	float cam_speed = 20 * delta_time;
+	if (glfwGetKey(w, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+		glfwSetWindowShouldClose(w, true);
+	}
 	if (glfwGetKey(w, GLFW_KEY_UP) == GLFW_PRESS) {
 		if (tranparency < 1.0)
 			tranparency += 0.01;
@@ -38,7 +51,31 @@ void key_callback(GLFWwindow* w,int key,int scannode,int action,int mods) {
 		if (tranparency > 0.1)
 			tranparency -= 0.01;
 	}
+	if (glfwGetKey(w, GLFW_KEY_W) == GLFW_PRESS) {
+		cam.move(Move_direction::FORWARD, delta_time);
+	}
+	if (glfwGetKey(w, GLFW_KEY_S) == GLFW_PRESS) {
+		cam.move(Move_direction::BACK, delta_time);
+	}
+	if (glfwGetKey(w, GLFW_KEY_A) == GLFW_PRESS) {
+		cam.move(Move_direction::LEFT, delta_time);
+	}
+	if (glfwGetKey(w, GLFW_KEY_D) == GLFW_PRESS) {
+		cam.move(Move_direction::RIGHT, delta_time);
+	}
+
 }
+
+void cursor_callback(GLFWwindow* window, double xpos, double ypos) {
+	cam.look(xpos, ypos);
+}
+
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+	//cout << "x:" << xoffset << " y:" << yoffset << endl;
+	cam.zoom(xoffset, yoffset);
+}
+
 void init() {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -47,13 +84,7 @@ void init() {
 }
 
 
-
 int main() {
-	/*vec4 v(1, 0, 0, 1);
-	mat4x4 trans(1.0);
-	trans=translate(trans, vec3(1.0, 1.0, 0.0));
-	v = trans * v;
-	cout << v.x<<v.y<<v.z<<v.w << endl;*/
 
 	init();
 
@@ -72,58 +103,77 @@ int main() {
 	glViewport(0,0,WIDTH,HEIGHT);
 
 	glfwSetFramebufferSizeCallback(w, framebuf_size_callback);
-
-
-
-	//const char* vertex_shader_source = "#version 330 core\n"
-	//	"layout (location =0) in vec3 aPos;\n"
-	//	"layout (location=1) in vec3 aColor;\n"
-	//	"out vec3 color;\n"
-	//	"void main(){\n"
-	//	"	gl_Position=vec4(aPos.x,aPos.y,aPos.z,1.0);\n"
-	//	"	color=aColor;"
-	//	"};\n";
-	//unsigned int vertex_shader;
-	//vertex_shader=glCreateShader(GL_VERTEX_SHADER);
-	//glShaderSource(vertex_shader, 1, &vertex_shader_source, NULL);
-	//glCompileShader(vertex_shader);
-	//check_shader(vertex_shader);
-
-	//const char* frag_shader_source="#version 330 core\n"
-	//	"//in vec3 color;\n"
-	//	"uniform vec3 color;\n"
-	//	"out vec4 FragColor;\n"
-	//	"void main(){\n"
-	//	"	FragColor=vec4(color,1.0);"
-	//	"}";
-	//unsigned int frag_shader;
-	//frag_shader = glCreateShader(GL_FRAGMENT_SHADER);
-	//glShaderSource(frag_shader, 1, &frag_shader_source, NULL);
-	//glCompileShader(frag_shader);
-	//check_shader(frag_shader);
-
-	//unsigned int shader_prog;
-	//shader_prog = glCreateProgram();
-	//glAttachShader(shader_prog, vertex_shader);
-	//glAttachShader(shader_prog, frag_shader);
-	//glLinkProgram(shader_prog);
-	//check_program(shader_prog);
-
-	//glDeleteShader(vertex_shader);
-	//glDeleteShader(frag_shader);
+	glEnable(GL_DEPTH_TEST);
+	glfwSetInputMode(w, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	Shader s("vertex shader.vert", "frag shader.frag");
 
+	//float vertices[] = {
+	////vertex		color				uv 
+	//-0.5,-0.5,0.0,	1.0,0.0,0.0,		0.0,0.0,	//left bottom
+	//0.5,-0.5,0.0,	0.0,1.0,0.0,		1.0,0.0,	//right bottom
+	//-0.5,0.5,0.0,	0.0,0.0,1.0,		0.0,1.0,	//left up
+	//0.5,0.5,0.0,	1.0,0.0,0.0,		1.0,1.0		//right up
+	//};
+	//unsigned int idxs[] = {
+	//	0,1,2,
+	//	1,2,3
+	//};
 	float vertices[] = {
-	//vertex		color				uv 
-	-0.5,-0.5,0.0,	1.0,0.0,0.0,		0.0,0.0,	//left bottom
-	0.5,-0.5,0.0,	0.0,1.0,0.0,		1.0,0.0,	//right bottom
-	-0.5,0.5,0.0,	0.0,0.0,1.0,		0.0,1.0,	//left up
-	0.5,0.5,0.0,	1.0,0.0,0.0,		1.0,1.0		//right up
+	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
-	unsigned int idxs[] = {
-		0,1,2,
-		1,2,3
+
+	vec3 cubePositions[] = {
+		vec3(0.0f,  0.0f,  0.0f),
+		vec3(2.0f,  5.0f, -15.0f),
+		vec3(-1.5f, -2.2f, -2.5f),
+		vec3(-3.8f, -2.0f, -12.3f),
+		vec3(2.4f, -0.4f, -3.5f),
+		vec3(-1.7f,  3.0f, -7.5f),
+		vec3(1.3f, -2.0f, -2.5f),
+		vec3(1.5f,  2.0f, -2.5f),
+		vec3(1.5f,  0.2f, -1.5f),
+		vec3(-1.3f,  1.0f, -1.5f)
 	};
 	unsigned int vao;
 	glGenVertexArrays(1, &vao);
@@ -134,17 +184,17 @@ int main() {
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	unsigned int ebo;
-	glGenBuffers(1, &ebo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(idxs), idxs, GL_STATIC_DRAW);
+	//unsigned int ebo;
+	//glGenBuffers(1, &ebo);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(idxs), idxs, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,8*sizeof(float),(void*)0);
+	glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,5*sizeof(float),(void*)0);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),(void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),(void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-	glEnableVertexAttribArray(2);
+	//glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	//glEnableVertexAttribArray(2);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -199,17 +249,17 @@ int main() {
 	s.set_texture("myTexture1", 1);
 
 
-
-
 	while (!glfwWindowShouldClose(w) )	{
-		process_input(w);
+
+		delta_time = get_delta_time();
+		cout << format("lag: {:4.2f}ms",delta_time*1000) << endl;
 
 		glClearColor(0.2, 0.2, 0.2, 1);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
 
 		//unsigned int color_uni = glGetUniformLocation(shader_prog, "color");
-		float time = glfwGetTime();
+		
 		//cout << time << endl;
 		//s.set_uniform_float("color", sin(time) / 2.0 + 0.5, sin(time + 2.0 / 3.0 * 3.1415) / 2.0 + 0.5, sin(time + 4.0 / 3.0 * 3.1415) / 2.0 + 0.5);
 		//glUniform3f(color_uni, sin(time)/2.0+0.5, sin(time+2.0/3.0*3.1415)/2.0+0.5, sin(time + 4.0 / 3.0 * 3.1415) / 2.0 + 0.5);
@@ -222,6 +272,8 @@ int main() {
 		s.use();
 
 		glfwSetKeyCallback(w,key_callback);
+		glfwSetCursorPosCallback(w, cursor_callback);
+		glfwSetScrollCallback(w, scroll_callback);
 
 		//cout << time<<"\ttransp:"<<tranparency << endl;
 		s.set_uniform_1f("tranparency", tranparency);
@@ -234,18 +286,23 @@ int main() {
 		//
 		//s.set_matrix("transform", trans);
 
-		mat4 model = mat4(1.0f);
-		mat4 view = mat4(1.0f);
-		mat4 proj = mat4(1.0f);
-		model = rotate(model, (float)radians(-55.0f), vec3(1.0f, 0.0f, 0.0f));
-		view = translate(view, vec3(0, 0, -3.0f));
-		proj = perspective((float)radians(45.0f), (float)(WIDTH / HEIGHT), 0.1f, 100.0f);
-
-		s.set_matrix("model", model);
+		
+		mat4 view = cam.get_view_matrix();
+		mat4 proj = perspective((float)radians(cam.fov), (float)(WIDTH / HEIGHT), 0.1f, 100.0f);
+		
 		s.set_matrix("view", view);
 		s.set_matrix("projection", proj);
-
-		glDrawElements(GL_TRIANGLES,sizeof(idxs),GL_UNSIGNED_INT,0);
+		
+		//glDrawElements(GL_TRIANGLES,sizeof(idxs),GL_UNSIGNED_INT,0);
+		
+		for (int i = 0; i < 10; i++) {
+			mat4 model = mat4(1.0f);
+			model = translate(model, cubePositions[i]);
+			model = rotate(model, (float)radians(20.0f*(i+1)) * current_time, vec3(0.5f, 1.0f, 0.0f));
+			
+			s.set_matrix("model", model);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 
 		glfwSwapBuffers(w);
 		glfwPollEvents();
@@ -253,7 +310,7 @@ int main() {
 	}
 	s.delete_program();
 	glDeleteBuffers(1, &vbo_id);
-	glDeleteBuffers(1, &ebo);
+	//glDeleteBuffers(1, &ebo);
 	glDeleteVertexArrays(1, &vao);
 
 	glfwTerminate();
