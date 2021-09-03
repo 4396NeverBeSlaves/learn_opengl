@@ -289,7 +289,6 @@ int main() {
 		
 		mat4 view = cam.get_view_matrix();
 		mat4 proj = perspective((float)radians(cam.fov), (float)(WIDTH / HEIGHT), 0.1f, 100.0f);
-		
 		s.set_matrix("view", view);
 		s.set_matrix("projection", proj);
 		
