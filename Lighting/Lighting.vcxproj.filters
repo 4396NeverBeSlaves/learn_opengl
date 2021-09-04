@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="main1.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="stb_img.cpp">
@@ -25,6 +25,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="texture.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -43,10 +46,16 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="frag shader.frag">
+    <None Include="obj_shader.frag">
       <Filter>资源文件</Filter>
     </None>
-    <None Include="vertex shader.vert">
+    <None Include="obj_shader.vert">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="light_shader.vert">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="light_shader.frag">
       <Filter>资源文件</Filter>
     </None>
   </ItemGroup>

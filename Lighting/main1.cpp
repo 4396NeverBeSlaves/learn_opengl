@@ -1,4 +1,4 @@
-#include<iostream>
+/*#include<iostream>
 #include<format>
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
@@ -82,7 +82,7 @@ void init() {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 }
 
-int main() {
+int main1() {
 	init();
 	GLFWwindow* w = glfwCreateWindow(WIDTH, HEIGHT, "My opengl program.", NULL, NULL);
 	if (!w) {
@@ -165,33 +165,24 @@ int main() {
 	glBindVertexArray(vao);
 
 	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBindBuffer(GL_ARRAY_BUFFER,vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(0));
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3*sizeof(float)));
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER,0);
 	glBindVertexArray(0);
 
-	unsigned int lightvao;
-	glGenVertexArrays(1, &lightvao);
-	glBindVertexArray(lightvao);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT,GL_FALSE, 5 * sizeof(float), (void*)0);
-	glBindVertexArray(0);
-	//Texture texture0("awesomeface.png", true);
-	//Texture texture1("container.jpg", true);
+	Texture texture0("awesomeface.png", true);
+	Texture texture1("container.jpg", true);
 
-	Shader objshader("obj_shader.vert", "obj_shader.frag");
-	Shader lightshader("light_shader.vert", "light_shader.frag");
-	//objshader.use();
-	//lightshader.use();
-	//s.set_texture("myTexture0", 0);
-	//s.set_texture("myTexture1", 1);
+	Shader s("vertex shader.vert", "frag shader.frag");
+	s.use();
+	s.set_texture("myTexture0", 0);
+	s.set_texture("myTexture1", 1);
 
 	while (!glfwWindowShouldClose(w)) {
 		delta_time = get_delta_time();
@@ -200,40 +191,24 @@ int main() {
 		glClearColor(0.2, 0.2, 0.2, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, texture0.get_texture_obj());
-		//glActiveTexture(GL_TEXTURE1);
-		//glBindTexture(GL_TEXTURE_2D, texture1.get_texture_obj());
-		
 		mat4 view = cam.get_view_matrix();
-		mat4 proj = perspective((float)radians(cam.fov), (float)WIDTH / HEIGHT, 0.1f, 100.0f);
-
-		vec3 light_pos(2.0f, 3.0f, -8.0f);
-		vec3 light_color(1.0, 1.0, 1.0);
-
-		mat4 model = mat4(1.0);
-		model = translate(model, vec3(0,0,0));
-		//model = rotate(model, (float)radians((i + 1) * 20.0) * current_time, vec3(1, 0, 0));
-		objshader.use();
-		objshader.set_matrix("model", model);
-		objshader.set_matrix("view", view);
-		objshader.set_matrix("projection", proj);
-		objshader.set_uniform_3f("obj_color", 0.0, 1.0, 1.0);
-		objshader.set_uniform_3fv("light_color", light_color);
-		glBindVertexArray(vao);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		mat4 proj = perspective((float)radians(cam.fov),(float) WIDTH / HEIGHT, 0.1f, 100.0f);
+		s.set_matrix("view", view);
+		s.set_matrix("projection", proj);
 		
-		model = mat4(1.0);
-		model = translate(model,light_pos);
-		//model = rotate(model, (float)radians( 20.0) * current_time, vec3(1, 1, 0));
-		model = scale(model, vec3(0.3f));
-		lightshader.use();
-		lightshader.set_matrix("model", model);
-		lightshader.set_matrix("view", view);
-		lightshader.set_matrix("projection", proj);
-		lightshader.set_uniform_3fv("light_color", light_color);
-		glBindVertexArray(lightvao);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture0.get_texture_obj());
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, texture1.get_texture_obj());
+		glBindVertexArray(vao);
+
+		for (int i = 0; i < 10; i++) {
+			mat4 model = mat4(1.0);
+			model = translate(model, cubePositions[i]);
+			model = rotate(model, (float)radians((i + 1) * 20.0)*current_time, vec3(1, 0, 0));
+			s.set_matrix("model", model);
+			glDrawArrays(GL_TRIANGLES,0, 36);
+		}
 
 		glfwSwapBuffers(w);
 		glfwPollEvents();
@@ -241,8 +216,8 @@ int main() {
 
 	glDeleteBuffers(1, &vbo);
 	glDeleteVertexArrays(1, &vao);
-	objshader.delete_program();
-	lightshader.delete_program();
+	s.delete_program();
 	glfwTerminate();
 	return 0;
 }
+*/

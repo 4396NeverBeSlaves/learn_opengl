@@ -19,10 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="main1.cpp" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="stb_img.cpp" />
     <ClCompile Include="texture.cpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
@@ -31,8 +32,10 @@
     <ClInclude Include="texture.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="frag shader.frag" />
-    <None Include="vertex shader.vert" />
+    <None Include="obj_shader.frag" />
+    <None Include="light_shader.frag" />
+    <None Include="light_shader.vert" />
+    <None Include="obj_shader.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
