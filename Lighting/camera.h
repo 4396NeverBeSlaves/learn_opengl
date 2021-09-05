@@ -30,6 +30,8 @@ public:
 	}
 	
 	mat4 get_view_matrix() {
+		//cout << "campos x:" << cam_pos.x << "y:" << cam_pos.y << "z:" << cam_pos.z << endl;
+		//cout << "camdir x:"<<cam_dir.x<< "camdir y:"<<cam_dir.y<<"camdir z:" <<cam_dir.z << endl;
 		return lookAt(cam_pos,cam_pos+cam_dir,cam_up);
 	}
 
@@ -63,7 +65,6 @@ public:
 		cam_dir.y = sin(radians(pitch_));
 		cam_dir.z = cos(radians(pitch_)) * sin(radians(yaw_));
 		cam_dir = normalize(cam_dir);
-		//cout << "camdir x:"<<cam_dir.x<< "camdir y:"<<cam_dir.y<<"camdir z:" <<cam_dir.z << endl;
 	}
 
 	void move(Move_direction md,float delta_time) {
@@ -95,7 +96,6 @@ public:
 	}
 public:
 	float fov;
-private:
 	vec3 cam_pos;
 	vec3 cam_dir;
 	vec3 cam_up;
