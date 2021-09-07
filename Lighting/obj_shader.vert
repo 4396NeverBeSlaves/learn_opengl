@@ -10,11 +10,12 @@ out vec2 texcoord;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
-
+uniform mat4 normal_matrix_translate;
+uniform mat4 normal_matrix_rotate;
 
 void main(){
 	gl_Position=projection*view*model*vec4(aPos,1.0);
 	frag_world_pos=vec3(model*vec4(aPos,1.0));
-	normal=aNormal;
+	normal=(normal_matrix_translate*normal_matrix_rotate* vec4(aNormal,0.0)).xyz;
 	texcoord=aTexcoord;
 }

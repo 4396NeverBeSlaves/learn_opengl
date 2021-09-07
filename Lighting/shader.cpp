@@ -84,6 +84,10 @@ void Shader::set_uniform_3fv(const string& name, glm::vec3 v) {
 	glUniform3fv(glGetUniformLocation(id, name.c_str()),1,glm::value_ptr(v));
 }
 
+void Shader::set_uniform_4fv(const string& name, glm::vec4 v) {
+	glUniform4fv(glGetUniformLocation(id, name.c_str()), 1, glm::value_ptr(v));
+}
+
 void Shader::set_uniform_1f(const string& name, float x) {
 	glUniform1f(glGetUniformLocation(id, name.c_str()), x);
 }

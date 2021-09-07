@@ -21,6 +21,7 @@ public:
 
 	void set_uniform_3f(const string& name,float x,float y ,float z);
 	void set_uniform_3fv(const string& name, glm::vec3 v);
+	void set_uniform_4fv(const string& name, glm::vec4 v);
 	void set_uniform_1f(const string& name, float x);
 	void set_uniform_int(const string& name, int x, int y, int z);
 	void set_uniform_bool(const string& name, bool x, bool y, bool z);

@@ -84,7 +84,7 @@ void init() {
 
 int main() {
 	init();
-	GLFWwindow* w = glfwCreateWindow(WIDTH, HEIGHT, "My opengl program.", NULL, NULL);
+	GLFWwindow* w = glfwCreateWindow(WIDTH, HEIGHT, "Lighting.", NULL, NULL);
 	if (!w) {
 		cout << "glfwCreateWindow failed!" << endl;
 		glfwTerminate();
@@ -190,14 +190,29 @@ int main() {
 	Shader objshader("obj_shader.vert", "obj_shader.frag");
 	Shader lightshader("light_shader.vert", "light_shader.frag");
 
-	Texture container2("mini box.png", false);
-	Texture container2_specular("mini box specular.png", false);
+	Texture container2("container2.png", false);
+	Texture container2_specular("container2_specular.png", false);
+	Texture matrix("matrix.jpg", false);
 
-	vec3 light_pos(1.0f, 1.5f, 3.0f);
+	vec4 light_pos(1.0f, 1.5f, 3.0f,1.0f);
+	//vec4 light_pos(-1.0f, -1.5f,-3.0f, 0.0f);	//方向光源
 	vec3 light_color(1.0, 1.0, 1.0);
 
+	float one_second = 0;
+	int frame = 0;
+	
 	while (!glfwWindowShouldClose(w)) {
 		delta_time = get_delta_time();
+		one_second += delta_time;
+		frame++;
+		if (one_second >= 1.0) {
+			string title = format("Lighting. [{:6.1f}FPS, {:5.2f}ms] [Yaw:{:7.1f}, Pitch:{:5.1f}] [Position:{:5.1f} {:5.1f} {:5.1f}, Direction:{:4.1f} {:4.1f} {:4.1f}]",
+							frame/one_second, one_second/frame*1000,cam.yaw_,cam.pitch_,cam.cam_pos.x, cam.cam_pos.y, cam.cam_pos.z,cam.cam_dir.x, cam.cam_dir.y, cam.cam_dir.z);
+			glfwSetWindowTitle(w, title.c_str());
+			one_second = 0.0;
+			frame = 0;
+		}
+
 		//cout << format("lag: {:4.2f}ms", delta_time * 1000) << endl;
 		//light_color.x = sin(radians(current_time * 10))/2+0.5;
 		//light_color.y = sin(radians(current_time * 10 + 120))/2+0.5;
@@ -210,38 +225,63 @@ int main() {
 		glBindTexture(GL_TEXTURE_2D, container2.get_texture_obj());
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, container2_specular.get_texture_obj());
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, matrix.get_texture_obj());
 
 		mat4 view = cam.get_view_matrix();
 		mat4 proj = perspective((float)radians(cam.fov), (float)WIDTH / HEIGHT, 0.1f, 100.0f);
 		mat4 model;
 		for (int i = 0; i < 10; i++) {
 
-			mat4 model = mat4(1.0);
+			model = mat4(1.0);
+			mat4 normal_matrix_translate(1.0);
+			mat4 normal_matrix_rotate(1.0);
+
 			model = translate(model, cubePositions[i]);
-			//model = rotate(model, (float)radians(20.0) * current_time, vec3(1, 0.3, 0.7));
+			normal_matrix_translate = { 1.0,0.0,0.0,-model[3][0],
+										0.0,0.1,0.0,-model[3][1],
+										0.0,0.0,1.0,-model[3][2],
+										0.0,0.0,0.0,1.0
+			};
+
+			model = rotate(model, (float)radians(10.0*(i+1)) * current_time, vec3(1, 0.3, 0.7));
+			normal_matrix_rotate = { model[0][0],model[0][1],model[0][2],0.0,
+									model[1][0],model[1][1],model[1][2],0.0,
+									model[2][0],model[2][1],model[2][2],0.0,
+									0.0,0.0,0.0,1.0
+
+			};
+			//mat4 t = normal_matrix_translate * normal_matrix_rotate;
+			//mat4 normal_matrix = transpose(inverse(model));
+
 			objshader.use();
 			objshader.set_matrix("model", model);
 			objshader.set_matrix("view", view);
 			objshader.set_matrix("projection", proj);
+			objshader.set_matrix("normal_matrix_translate", normal_matrix_translate);
+			objshader.set_matrix("normal_matrix_rotate", normal_matrix_rotate);
+			objshader.set_uniform_1f("time", current_time);
 			objshader.set_uniform_3fv("eye_pos", cam.cam_pos);
-			objshader.set_uniform_3fv("light.light_pos", light_pos);
+			objshader.set_uniform_4fv("light.light_pos", light_pos);
 			objshader.set_uniform_3fv("light.ambient", light_color * vec3(0.2, 0.2, 0.2));
 			objshader.set_uniform_3fv("light.diffuse", light_color * vec3(1.0, 1.0, 1.0));
 			objshader.set_uniform_3fv("light.specular", light_color * vec3(1.0, 1.0, 1.0));
 			objshader.set_texture("m_gold.diffuse", 0);
 			objshader.set_texture("m_gold.specular", 1);
+			objshader.set_texture("m_gold.emission", 2);
 			objshader.set_uniform_1f("m_gold.shininess", 64);
 			glBindVertexArray(vao);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
-		light_pos = vec3(1.0f, 1.5f, 3.0f);	//使用完更新后的灯光位置再重置为原位置
+		light_pos = vec4(1.0f, 1.5f, 3.0f,1.0);	//使用完更新后的灯光位置再重置为原位置
+		//light_pos = vec4(-1.0f, -1.5f, -3.0f, 0.0f);	//方向光源
 
 		model = mat4(1.0);
-		//model = translate(model,light_pos);
+		//model = translate(model,vec3(light_pos));
 		model = rotate(model, (float)radians(20.0) * current_time, vec3(0, 1, 0));
-		model = translate(model, light_pos);
+		model = translate(model, vec3(light_pos));
 
-		light_pos = vec3(model * vec4(light_pos, 1.0));	//更新旋转后的灯光位置，使objshader能获得新的灯光位置
+		light_pos = model * light_pos;	//更新旋转后的灯光位置，使objshader能获得新的灯光位置
 
 		model = scale(model, vec3(0.3f));
 		lightshader.use();
