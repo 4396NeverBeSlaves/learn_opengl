@@ -26,7 +26,7 @@ public:
 		old_ypos = 0.0;
 		yaw_ = -90;
 		pitch_ = 0;
-		fov = 45.0;
+		fov = 60.0;
 	}
 	
 	mat4 get_view_matrix() {

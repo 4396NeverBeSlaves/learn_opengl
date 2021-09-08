@@ -19,23 +19,29 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main1.cpp" />
+    <ClCompile Include="light.cpp" />
+    <ClCompile Include="SpotLight.cpp" />
+    <ClCompile Include="Basic.cpp" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="stb_img.cpp" />
     <ClCompile Include="texture.cpp" />
+    <ClCompile Include="PointLight.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
+    <ClInclude Include="light.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="texture.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="all_light_obj.frag" />
     <None Include="obj_shader.frag" />
     <None Include="light_shader.frag" />
     <None Include="light_shader.vert" />
     <None Include="obj_shader.vert" />
+    <None Include="spot_light_obj.frag" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

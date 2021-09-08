@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main1.cpp">
+    <ClCompile Include="Basic.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="stb_img.cpp">
@@ -27,7 +27,16 @@
     <ClCompile Include="texture.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="PointLight.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="SpotLight.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
     <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="light.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -44,6 +53,9 @@
     <ClInclude Include="texture.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="light.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="obj_shader.frag">
@@ -56,6 +68,12 @@
       <Filter>资源文件</Filter>
     </None>
     <None Include="light_shader.frag">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="spot_light_obj.frag">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="all_light_obj.frag">
       <Filter>资源文件</Filter>
     </None>
   </ItemGroup>

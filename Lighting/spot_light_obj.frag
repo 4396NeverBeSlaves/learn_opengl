@@ -7,7 +7,10 @@ struct Material{
 };
 
 struct Light{
-	vec4 light_pos;
+	vec3 light_pos;
+	vec3 spot_dir;
+	float inner_range_angle;
+	float outer_range_angle;
 	vec3 ambient;
 	vec3 diffuse;
 	vec3 specular;
@@ -30,17 +33,22 @@ out vec4 FragColor;
 
 void main(){
 	vec3 ambient=vec3(texture2D(m_gold.diffuse,texcoord))*light.ambient;
-	vec3 light_dir;
-	float attenuation;
-	if(light.light_pos.w == 1.0){
-		light_dir=normalize(light.light_pos.xyz-frag_world_pos);
-		float distance=length(light.light_pos.xyz-frag_world_pos);
-		attenuation=1.0/(light.constant+light.linear*distance+light.quadratic*distance*distance);
-	}else{
-		light_dir=normalize(-light.light_pos.xyz);
-	}
 
-	
+	vec3 light_dir=normalize(light.light_pos.xyz-frag_world_pos);
+	float distance=length(light.light_pos.xyz-frag_world_pos);
+	float attenuation=1.0/(light.constant+light.linear*distance+light.quadratic*distance*distance);
+
+	float in_light=0.0;
+	float inner_range=cos(radians(light.inner_range_angle));
+	float outer_range=cos(radians(light.outer_range_angle));
+	float epsilon=inner_range-outer_range;
+	float result=dot(-light_dir,normalize(light.spot_dir));
+/*//	if(result<=1.0 && result >=range)
+//		in_light=1.0;
+//	else
+	in_light=pow((1.0-(max(range-result,0))),100);*/
+	in_light=clamp((result-outer_range)/epsilon,0.0,1.0);
+
 	float diffuse_coef=max(dot(light_dir,normalize(normal)),0);
 	vec3 diffuse=diffuse_coef*vec3(texture2D(m_gold.diffuse,texcoord))*light.diffuse;
 
@@ -52,12 +60,6 @@ void main(){
 	//vec3 emission=texture2D(m_gold.emission,texcoord).rgb;
 	vec3 emission=vec3(0.0);
 
-	if(light.light_pos.w == 1.0){
-		FragColor=vec4((ambient+diffuse+specular+emission)*attenuation,1.0);
-	}else{
-		FragColor=vec4(ambient+diffuse+specular+emission,1.0);
-	}
-
-	
+	FragColor=vec4((ambient+diffuse+specular+emission)*attenuation*in_light,1.0);
 
 }

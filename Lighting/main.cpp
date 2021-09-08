@@ -8,7 +8,9 @@
 #include"camera.h"
 #include"shader.h"
 #include"texture.h"
+#include"light.h"
 #include"stb_image.h"
+
 
 using namespace std;
 using namespace glm;
@@ -187,27 +189,30 @@ int main() {
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glBindVertexArray(0);
 
-	Shader objshader("obj_shader.vert", "obj_shader.frag");
+	Shader objshader("obj_shader.vert", "all_light_obj.frag");
 	Shader lightshader("light_shader.vert", "light_shader.frag");
 
 	Texture container2("container2.png", false);
 	Texture container2_specular("container2_specular.png", false);
 	Texture matrix("matrix.jpg", false);
 
-	vec4 light_pos(1.0f, 1.5f, 3.0f,1.0f);
-	//vec4 light_pos(-1.0f, -1.5f,-3.0f, 0.0f);	//方向光源
 	vec3 light_color(1.0, 1.0, 1.0);
+	vec3 light_coef(1.0, 0.027, 0.0028);
+
+	DirectionLight* dir_light = new DirectionLight("dir_light", vec3(1.0, 1.0, 1.0), vec3(0.0, -0.7, -0.7));
+	PointLight* point_lights = new PointLight("point_lights", vec3(1.0, 1.0, 1.0), vec3(1.0, 1.5, 3.0), light_coef);
+	SpotLight* spot_light = new SpotLight("spot_light", vec3(1.0, 1.0, 1.0), vec3(0.0, 0.0, -2.0), light_coef, vec3(0.0, 0.0, -1.0), 15.0, 16.0);
 
 	float one_second = 0;
 	int frame = 0;
-	
+
 	while (!glfwWindowShouldClose(w)) {
 		delta_time = get_delta_time();
 		one_second += delta_time;
 		frame++;
 		if (one_second >= 1.0) {
-			string title = format("Lighting. [{:6.1f}FPS, {:5.2f}ms] [Yaw:{:7.1f}, Pitch:{:5.1f}] [Position:{:5.1f} {:5.1f} {:5.1f}, Direction:{:4.1f} {:4.1f} {:4.1f}]",
-							frame/one_second, one_second/frame*1000,cam.yaw_,cam.pitch_,cam.cam_pos.x, cam.cam_pos.y, cam.cam_pos.z,cam.cam_dir.x, cam.cam_dir.y, cam.cam_dir.z);
+			string title = format("Lighting. [{:6.1f}FPS, {:5.2f}ms] [FOV: {:4.1f}] [Yaw:{:7.1f}, Pitch:{:5.1f}] [Position:{:5.1f} {:5.1f} {:5.1f}, Direction:{:4.1f} {:4.1f} {:4.1f}]",
+				frame / one_second, one_second / frame * 1000, cam.fov, cam.yaw_, cam.pitch_, cam.cam_pos.x, cam.cam_pos.y, cam.cam_pos.z, cam.cam_dir.x, cam.cam_dir.y, cam.cam_dir.z);
 			glfwSetWindowTitle(w, title.c_str());
 			one_second = 0.0;
 			frame = 0;
@@ -228,9 +233,37 @@ int main() {
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, matrix.get_texture_obj());
 
+
+
 		mat4 view = cam.get_view_matrix();
 		mat4 proj = perspective((float)radians(cam.fov), (float)WIDTH / HEIGHT, 0.1f, 100.0f);
 		mat4 model;
+
+		{
+			spot_light->position = spot_light->origin_postion;	//使用完更新后的灯光位置再重置为原位置
+			spot_light->spot_dir = spot_light->origin_spot_dir;
+
+			float rotate_radians = (float)radians(30.0) * current_time;
+			model = mat4(1.0);
+			mat4 dir_rotate_matrix = mat4(1.0);
+
+			dir_rotate_matrix = rotate(dir_rotate_matrix, rotate_radians, vec3(0, 1, 0));
+
+			model = translate(model, spot_light->position);
+			model = rotate(model, rotate_radians, vec3(0, 1, 0));
+
+			spot_light->position = vec3(model * vec4(0.0, 0.0, 0.0, 1.0));	//更新旋转后的灯光位置，使objshader能获得新的灯光位置
+			spot_light->spot_dir = vec3(dir_rotate_matrix * vec4(spot_light->spot_dir, 0.0));
+
+			model = scale(model, vec3(0.3f));
+			lightshader.use();
+			lightshader.set_matrix("model", model);
+			lightshader.set_matrix("view", view);
+			lightshader.set_matrix("projection", proj);
+			lightshader.set_uniform_3fv("light_color", vec3(1.0, 1.0, 1.0));
+			glBindVertexArray(lightvao);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 		for (int i = 0; i < 10; i++) {
 
 			model = mat4(1.0);
@@ -244,7 +277,7 @@ int main() {
 										0.0,0.0,0.0,1.0
 			};
 
-			model = rotate(model, (float)radians(10.0*(i+1)) * current_time, vec3(1, 0.3, 0.7));
+			//model = rotate(model, (float)radians(10.0 * (i + 1)) * current_time, vec3(1, 0.3, 0.7));
 			normal_matrix_rotate = { model[0][0],model[0][1],model[0][2],0.0,
 									model[1][0],model[1][1],model[1][2],0.0,
 									model[2][0],model[2][1],model[2][2],0.0,
@@ -262,35 +295,28 @@ int main() {
 			objshader.set_matrix("normal_matrix_rotate", normal_matrix_rotate);
 			objshader.set_uniform_1f("time", current_time);
 			objshader.set_uniform_3fv("eye_pos", cam.cam_pos);
-			objshader.set_uniform_4fv("light.light_pos", light_pos);
-			objshader.set_uniform_3fv("light.ambient", light_color * vec3(0.2, 0.2, 0.2));
-			objshader.set_uniform_3fv("light.diffuse", light_color * vec3(1.0, 1.0, 1.0));
-			objshader.set_uniform_3fv("light.specular", light_color * vec3(1.0, 1.0, 1.0));
-			objshader.set_texture("m_gold.diffuse", 0);
-			objshader.set_texture("m_gold.specular", 1);
-			objshader.set_texture("m_gold.emission", 2);
-			objshader.set_uniform_1f("m_gold.shininess", 64);
+
+			//dir_light->set_light(objshader);
+			// point_lights->set_light(objshader);
+			spot_light->set_light(objshader);
+			//objshader.set_uniform_3fv("spot_light.position", vec3(cam.cam_pos.x + 0.5, cam.cam_pos.y - 0.5, cam.cam_pos.z));
+			//objshader.set_uniform_3fv("spot_light.spot_dir", cam.cam_dir);
+			//objshader.set_uniform_1f("light.inner_range_angle", 15.0);
+			//objshader.set_uniform_1f("light.outer_range_angle", 16.0);
+			//objshader.set_uniform_3fv("light.ambient", light_color * vec3(0.2, 0.2, 0.2));
+			//objshader.set_uniform_3fv("light.diffuse", light_color * vec3(1.0, 1.0, 1.0));
+			//objshader.set_uniform_3fv("light.specular", light_color * vec3(1.0, 1.0, 1.0));
+			//objshader.set_uniform_1f("light.constant", light_coef[0]);
+			//objshader.set_uniform_1f("light.linear", light_coef[1]);
+			//objshader.set_uniform_1f("light.quadratic", light_coef[2]);
+
+			objshader.set_texture("wood_box.diffuse", 0);
+			objshader.set_texture("wood_box.specular", 1);
+			objshader.set_texture("wood_box.emission", 2);
+			objshader.set_uniform_1f("wood_box.shininess", 64);
 			glBindVertexArray(vao);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
-		light_pos = vec4(1.0f, 1.5f, 3.0f,1.0);	//使用完更新后的灯光位置再重置为原位置
-		//light_pos = vec4(-1.0f, -1.5f, -3.0f, 0.0f);	//方向光源
-
-		model = mat4(1.0);
-		//model = translate(model,vec3(light_pos));
-		model = rotate(model, (float)radians(20.0) * current_time, vec3(0, 1, 0));
-		model = translate(model, vec3(light_pos));
-
-		light_pos = model * light_pos;	//更新旋转后的灯光位置，使objshader能获得新的灯光位置
-
-		model = scale(model, vec3(0.3f));
-		lightshader.use();
-		lightshader.set_matrix("model", model);
-		lightshader.set_matrix("view", view);
-		lightshader.set_matrix("projection", proj);
-		lightshader.set_uniform_3fv("light_color", light_color);
-		glBindVertexArray(lightvao);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		glfwSwapBuffers(w);
 		glfwPollEvents();
