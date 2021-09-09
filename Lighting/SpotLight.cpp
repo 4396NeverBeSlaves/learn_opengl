@@ -8,7 +8,7 @@
 #include"camera.h"
 #include"shader.h"
 #include"texture.h"
-#include"stb_image.h"
+#include"../stb_image.h"
 
 namespace SpotLight {
 	using namespace std;

@@ -9,7 +9,8 @@
 #include"shader.h"
 #include"texture.h"
 #include"light.h"
-#include"stb_image.h"
+#include"../stb_image.h"
+
 
 
 using namespace std;
@@ -198,10 +199,27 @@ int main() {
 
 	vec3 light_color(1.0, 1.0, 1.0);
 	vec3 light_coef(1.0, 0.027, 0.0028);
-
-	DirectionLight* dir_light = new DirectionLight("dir_light", vec3(1.0, 1.0, 1.0), vec3(0.0, -0.7, -0.7));
-	PointLight* point_lights = new PointLight("point_lights", vec3(1.0, 1.0, 1.0), vec3(1.0, 1.5, 3.0), light_coef);
-	SpotLight* spot_light = new SpotLight("spot_light", vec3(1.0, 1.0, 1.0), vec3(0.0, 0.0, -2.0), light_coef, vec3(0.0, 0.0, -1.0), 15.0, 16.0);
+	
+	LightManager::create_direction_light("dir_light", 0.2f * vec3(1.0, 1.0, 1.0), vec3(0.0, -0.7, -0.7));
+	LightManager::create_point_light("point_lights[0]", 0.6f * vec3(1.0, 0.0, 0.0), vec3(1.0, 1.5, 0.0), light_coef);
+	LightManager::create_point_light("point_lights[1]", 0.6f * vec3(0.0, 1.0, 0.0), vec3(-2.8, 0.0, 0.0), light_coef);
+	LightManager::create_point_light("point_lights[2]", 0.6f * vec3(0.0, 0.0, 1.0), vec3(0.0, 3.0, -10.0), light_coef);
+	LightManager::create_point_light("point_lights[3]", 0.6f * vec3(1.0, 1.0, 0.0), vec3(3.4, 0.0, -1.8), light_coef);
+	LightManager::create_spot_light("spot_light", vec3(1.0, 1.0, 1.0), vec3(0.0, 0.0, -2.0), light_coef, vec3(0.0, 0.0, -1.0), 20.0, 21.0);
+	/*DirectionLight* dir_light = new DirectionLight("dir_light", 0.2f*vec3(1.0, 1.0, 1.0), vec3(0.0, -0.7, -0.7));
+	PointLight* point_light0 = new PointLight("point_lights[0]", 0.6f*vec3(1.0, 0.0, 0.0), vec3(1.0, 1.5, 0.0), light_coef);
+	PointLight* point_light1 = new PointLight("point_lights[1]", 0.6f*vec3(0.0, 1.0, 0.0), vec3(-2.8, 0.0, 0.0), light_coef);
+	PointLight* point_light2 = new PointLight("point_lights[2]", 0.6f*vec3(0.0, 0.0, 1.0), vec3(0.0, 3.0, -10.0), light_coef);
+	PointLight* point_light3 = new PointLight("point_lights[3]", 0.6f*vec3(1.0, 1.0, 0.0), vec3(3.4, 0.0, -1.8), light_coef);
+	SpotLight* spot_light = new SpotLight("spot_light", vec3(1.0, 1.0, 1.0), vec3(0.0, 0.0, -2.0), light_coef, vec3(0.0, 0.0, -1.0), 20.0, 21.0);
+	const int NUMS_LIGHTS= 6;
+	Light* lights[NUMS_LIGHTS]; 
+	lights[0] = dir_light;
+	lights[1] = point_light0;
+	lights[2] = point_light1;
+	lights[3] = point_light2;
+	lights[4] = point_light3;
+	lights[5] = spot_light;*/
 
 	float one_second = 0;
 	int frame = 0;
@@ -233,36 +251,59 @@ int main() {
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, matrix.get_texture_obj());
 
-
-
 		mat4 view = cam.get_view_matrix();
 		mat4 proj = perspective((float)radians(cam.fov), (float)WIDTH / HEIGHT, 0.1f, 100.0f);
 		mat4 model;
 
-		{
-			spot_light->position = spot_light->origin_postion;	//使用完更新后的灯光位置再重置为原位置
-			spot_light->spot_dir = spot_light->origin_spot_dir;
+		for (int i = 0; i < LightManager::get_lights_num(); i++) {
+			if (LightManager::lights[i]->type==LightType::PointLight) {
+				PointLight* ptl = static_cast<PointLight*>(LightManager::lights[i]);
 
-			float rotate_radians = (float)radians(30.0) * current_time;
-			model = mat4(1.0);
-			mat4 dir_rotate_matrix = mat4(1.0);
+				ptl->position = ptl->origin_postion;	//使用完更新后的灯光位置再重置为原位置
 
-			dir_rotate_matrix = rotate(dir_rotate_matrix, rotate_radians, vec3(0, 1, 0));
+				float rotate_radians = (float)radians(30.0) * current_time;
+				model = mat4(1.0);
+				model = translate(model, ptl->position);
+			//	model = rotate(model, rotate_radians, vec3(0, 1, 0));
 
-			model = translate(model, spot_light->position);
-			model = rotate(model, rotate_radians, vec3(0, 1, 0));
+				ptl->position = vec3(model * vec4(0.0, 0.0, 0.0, 1.0));	//更新旋转后的灯光位置，使灯光对象能获得新的灯光位置
+			}
+			else if (LightManager::lights[i]->type == LightType::SpotLight) {
+				SpotLight* spl = static_cast<SpotLight*>(LightManager::lights[i]);
 
-			spot_light->position = vec3(model * vec4(0.0, 0.0, 0.0, 1.0));	//更新旋转后的灯光位置，使objshader能获得新的灯光位置
-			spot_light->spot_dir = vec3(dir_rotate_matrix * vec4(spot_light->spot_dir, 0.0));
+				spl->position = spl->origin_postion;	//使用完更新后的灯光位置再重置为原位置
+				spl->spot_dir = spl->origin_spot_dir;
+
+				float rotate_radians = (float)radians(30.0) * current_time;
+				model = mat4(1.0);
+				mat4 dir_rotate_matrix = mat4(1.0);	//注视方向向量只用变换旋转方向，不用变换位移
+
+				dir_rotate_matrix = rotate(dir_rotate_matrix, rotate_radians, vec3(0, 1, 0));
+
+				model = translate(model, spl->position);
+				model = rotate(model, rotate_radians, vec3(0, 1, 0));
+
+				spl->position = vec3(model * vec4(0.0, 0.0, 0.0, 1.0));	//更新旋转后的灯光位置，使灯光对象能获得新的灯光位置
+				spl->spot_dir = vec3(dir_rotate_matrix * vec4(spl->spot_dir, 0.0));
+
+				spl->color.x = sin(radians(current_time * 10))/2+0.5;
+				spl->color.y = sin(radians(current_time * 10 + 120))/2+0.5;
+				spl->color.z = sin(radians(current_time * 10 + 240))/2+0.5;
+			}
+			else {
+				
+				continue;
+			}
 
 			model = scale(model, vec3(0.3f));
 			lightshader.use();
 			lightshader.set_matrix("model", model);
 			lightshader.set_matrix("view", view);
 			lightshader.set_matrix("projection", proj);
-			lightshader.set_uniform_3fv("light_color", vec3(1.0, 1.0, 1.0));
+			lightshader.set_uniform_3fv("light_color",LightManager::lights[i]->color);
 			glBindVertexArray(lightvao);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
+			
 		}
 		for (int i = 0; i < 10; i++) {
 
@@ -277,7 +318,7 @@ int main() {
 										0.0,0.0,0.0,1.0
 			};
 
-			//model = rotate(model, (float)radians(10.0 * (i + 1)) * current_time, vec3(1, 0.3, 0.7));
+			model = rotate(model, (float)radians(10.0 * (i + 1)) , vec3(1, 0.3, 0.7));
 			normal_matrix_rotate = { model[0][0],model[0][1],model[0][2],0.0,
 									model[1][0],model[1][1],model[1][2],0.0,
 									model[2][0],model[2][1],model[2][2],0.0,
@@ -296,19 +337,9 @@ int main() {
 			objshader.set_uniform_1f("time", current_time);
 			objshader.set_uniform_3fv("eye_pos", cam.cam_pos);
 
-			//dir_light->set_light(objshader);
-			// point_lights->set_light(objshader);
-			spot_light->set_light(objshader);
-			//objshader.set_uniform_3fv("spot_light.position", vec3(cam.cam_pos.x + 0.5, cam.cam_pos.y - 0.5, cam.cam_pos.z));
-			//objshader.set_uniform_3fv("spot_light.spot_dir", cam.cam_dir);
-			//objshader.set_uniform_1f("light.inner_range_angle", 15.0);
-			//objshader.set_uniform_1f("light.outer_range_angle", 16.0);
-			//objshader.set_uniform_3fv("light.ambient", light_color * vec3(0.2, 0.2, 0.2));
-			//objshader.set_uniform_3fv("light.diffuse", light_color * vec3(1.0, 1.0, 1.0));
-			//objshader.set_uniform_3fv("light.specular", light_color * vec3(1.0, 1.0, 1.0));
-			//objshader.set_uniform_1f("light.constant", light_coef[0]);
-			//objshader.set_uniform_1f("light.linear", light_coef[1]);
-			//objshader.set_uniform_1f("light.quadratic", light_coef[2]);
+			for (int i = 0; i < LightManager::get_lights_num(); i++) {
+				LightManager::lights[i]->set_lighting_shader(objshader);
+			}
 
 			objshader.set_texture("wood_box.diffuse", 0);
 			objshader.set_texture("wood_box.specular", 1);

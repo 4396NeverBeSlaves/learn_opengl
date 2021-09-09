@@ -7,6 +7,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lighting", "Lighting\Lighti
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Getting started", "Getting started\Getting started.vcxproj", "{802EE05A-46B4-4D6D-A4D8-B42E09D61A55}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "stb_img lib", "stb_img lib", "{974C8559-FDD7-4364-ADF2-D2E854F52959}"
+	ProjectSection(SolutionItems) = preProject
+		stb_image.h = stb_image.h
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
