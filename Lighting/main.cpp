@@ -9,7 +9,6 @@
 #include"shader.h"
 #include"texture.h"
 #include"light.h"
-#include"../stb_image.h"
 
 
 
@@ -357,6 +356,7 @@ int main() {
 	glDeleteVertexArrays(1, &vao);
 	objshader.delete_program();
 	lightshader.delete_program();
+	LightManager::destory_all_lights();
 	glfwTerminate();
 	return 0;
 }

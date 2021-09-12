@@ -7,6 +7,8 @@
 
 using namespace std;
 
+
+
 enum class TextureType {
 	Diffuse,
 	Specular
@@ -14,10 +16,13 @@ enum class TextureType {
 
 class Texture {
 public:
-	Texture(const string& path, TextureType tp,bool vertical_flip);
+	Texture(const string& path,float shiness, TextureType tp,bool vertical_flip);
 	unsigned int get_texture_obj();
-	const TextureType type;
-public:
+
+	
 	unsigned int texture_id;
 	int width, height,nchannels;
+	float specular_shininess;
+	const TextureType type;
+	const string tex_path;
 };

@@ -30,6 +30,12 @@
     <ClCompile Include="Mesh.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Model.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Mesh.h">
@@ -44,5 +50,25 @@
     <ClInclude Include="Texture.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="nanosuit_shader.frag">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="nanosuit_shader.vert">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="light_shader.frag">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="light_shader.vert">
+      <Filter>资源文件</Filter>
+    </None>
   </ItemGroup>
 </Project>

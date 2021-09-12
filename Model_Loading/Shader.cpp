@@ -1,4 +1,4 @@
-#include"shader.h"
+#include"Shader.h"
 
 Shader::Shader(const string& vertex_shader_path, const string& frag_shader_path){
 	fstream vs_file, fs_file;
@@ -92,7 +92,7 @@ void Shader::set_uniform_1f(const string& name, float x) {
 	glUniform1f(glGetUniformLocation(id, name.c_str()), x);
 }
 void Shader::set_uniform_int(const string& name, int x, int y, int z) {
-	glUniform3f(glGetUniformLocation(id, name.c_str()), x, y, z);
+	glUniform3i(glGetUniformLocation(id, name.c_str()), x, y, z);
 }
 void Shader::set_uniform_bool(const string& name, bool x, bool y, bool z) {
 	glUniform3f(glGetUniformLocation(id, name.c_str()), x, y, z);

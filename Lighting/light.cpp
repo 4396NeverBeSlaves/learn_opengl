@@ -1,6 +1,6 @@
 #include"light.h"
 
-void Light::set_lighting_shader(Shader& s) {}
+//void Light::set_lighting_shader(Shader& s) {}
 
 void Light::open() {
 	this->opened = true;
@@ -35,23 +35,24 @@ void SpotLight::set_lighting_shader(Shader& s) {
 }
 
 void LightManager::create_direction_light(const string& lightname, vec3 lightcolor, vec3 lightdir) {
-	lights[nums] = new DirectionLight(lightname, lightcolor, lightdir);
-	nums++;
+	lights.push_back(new DirectionLight(lightname, lightcolor, lightdir));
 }
 
 void LightManager::create_point_light(const string& lightname, vec3 lightcolor, vec3 lightpos, vec3 attenuation_coefs) {
-	lights[nums] = new PointLight(lightname, lightcolor, lightpos,attenuation_coefs);
-	nums++;
+	lights.push_back(new PointLight(lightname, lightcolor, lightpos,attenuation_coefs));
 }
 
 void LightManager::create_spot_light(const string& lightname, vec3 lightcolor, vec3 lightpos, vec3 attenuation_coefs, vec3 spotdir, float inner_range_angle, float outer_range_angle) {
-	lights[nums] = new SpotLight(lightname, lightcolor,  lightpos, attenuation_coefs,  spotdir,  inner_range_angle,  outer_range_angle);
-	nums++;
+	lights.push_back(new SpotLight(lightname, lightcolor,  lightpos, attenuation_coefs,  spotdir,  inner_range_angle,  outer_range_angle));
 }
 
 const int LightManager::get_lights_num() {
-	return nums;
+	return lights.size();
 }
 
-int LightManager::nums = 0;
-Light* LightManager::lights[16] = { NULL };
+void LightManager::destory_all_lights() {
+	for (int i = 0; i++; i < lights.size()) {
+		delete lights[i];
+	}
+}
+vector<Light*> LightManager::lights;
