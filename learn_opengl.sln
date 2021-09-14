@@ -3,16 +3,18 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31025.194
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lighting", "Lighting\Lighting.vcxproj", "{BE7144F2-05A3-4C02-B2E5-CCACF488A03B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "1 Lighting", "Lighting\Lighting.vcxproj", "{BE7144F2-05A3-4C02-B2E5-CCACF488A03B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Getting started", "Getting started\Getting started.vcxproj", "{802EE05A-46B4-4D6D-A4D8-B42E09D61A55}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "0 Getting started", "Getting started\Getting started.vcxproj", "{802EE05A-46B4-4D6D-A4D8-B42E09D61A55}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "stb_img lib", "stb_img lib", "{974C8559-FDD7-4364-ADF2-D2E854F52959}"
 	ProjectSection(SolutionItems) = preProject
 		stb_image.h = stb_image.h
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Model_Loading", "Model_Loading\Model_Loading.vcxproj", "{0AB65D26-A99C-4970-871D-6E75067BE38C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "2 Model_Loading", "Model_Loading\Model_Loading.vcxproj", "{0AB65D26-A99C-4970-871D-6E75067BE38C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "3 Advanced_OpenGL", "Advanced_OpenGL\Advanced_OpenGL.vcxproj", "{8CFC0F40-6C0D-4676-95B7-E62AE81AF364}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -46,6 +48,14 @@ Global
 		{0AB65D26-A99C-4970-871D-6E75067BE38C}.Release|x64.Build.0 = Release|x64
 		{0AB65D26-A99C-4970-871D-6E75067BE38C}.Release|x86.ActiveCfg = Release|Win32
 		{0AB65D26-A99C-4970-871D-6E75067BE38C}.Release|x86.Build.0 = Release|Win32
+		{8CFC0F40-6C0D-4676-95B7-E62AE81AF364}.Debug|x64.ActiveCfg = Debug|x64
+		{8CFC0F40-6C0D-4676-95B7-E62AE81AF364}.Debug|x64.Build.0 = Debug|x64
+		{8CFC0F40-6C0D-4676-95B7-E62AE81AF364}.Debug|x86.ActiveCfg = Debug|Win32
+		{8CFC0F40-6C0D-4676-95B7-E62AE81AF364}.Debug|x86.Build.0 = Debug|Win32
+		{8CFC0F40-6C0D-4676-95B7-E62AE81AF364}.Release|x64.ActiveCfg = Release|x64
+		{8CFC0F40-6C0D-4676-95B7-E62AE81AF364}.Release|x64.Build.0 = Release|x64
+		{8CFC0F40-6C0D-4676-95B7-E62AE81AF364}.Release|x86.ActiveCfg = Release|Win32
+		{8CFC0F40-6C0D-4676-95B7-E62AE81AF364}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
