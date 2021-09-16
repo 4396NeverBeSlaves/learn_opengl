@@ -1,6 +1,5 @@
 #include<iostream>
 #include<format>
-#include<vector>
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
 #include<glm/glm.hpp>
@@ -11,6 +10,7 @@
 #include"Texture.h"
 #include"../stb_image.h"
 
+namespace stencil01{
 using namespace std;
 using namespace glm;
 
@@ -161,21 +161,6 @@ int main() {
 		-5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
 		 5.0f, -0.5f, -5.0f,  2.0f, 2.0f
 	};
-	float transparentVertices[] = {
-		0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
-		0.0f, -0.5f,  0.0f,  0.0f,  1.0f,
-		1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
-
-		0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
-		1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
-		1.0f,  0.5f,  0.0f,  1.0f,  0.0f
-	};
-	vector<vec3> grass_position;
-	grass_position.push_back(glm::vec3(-1.5f, 0.0f, -0.48f));
-	grass_position.push_back(glm::vec3(1.5f, 0.0f, 0.51f));
-	grass_position.push_back(glm::vec3(0.0f, 0.0f, 0.7f));
-	grass_position.push_back(glm::vec3(-0.3f, 0.0f, -2.3f));
-	grass_position.push_back(glm::vec3(0.5f, 0.0f, -0.6f));
 
 	unsigned int cubeVAO, cubeVBO;
 	glGenVertexArrays(1, &cubeVAO);
@@ -201,24 +186,12 @@ int main() {
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glBindVertexArray(0);
 
-	unsigned int grassVAO, grassVBO;
-	glGenVertexArrays(1, &grassVAO);
-	glGenBuffers(1, &grassVBO);
-	glBindVertexArray(grassVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, grassVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(transparentVertices), &transparentVertices, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	glBindVertexArray(0);
 
 	Texture cube_texture("marble.jpg", true);
 	Texture plane_texture("metal.png", true);
-	Texture grass("grass.png", false);
 
-	Shader s("alpha02_obj_shader.vert", "alpha02_obj_shader.frag");
-	//Shader outline_shader("stencil01_obj_shader.vert", "stencil01_outlines_shader.frag");
+	Shader s("stencil01_obj_shader.vert", "stencil01_obj_shader.frag");
+	Shader outline_shader("stencil01_obj_shader.vert", "stencil01_outlines_shader.frag");
 
 	float one_second = 0;
 	int frame = 0;
@@ -234,9 +207,10 @@ int main() {
 			frame = 0;
 		}
 
+		glStencilMask(0xff);
 		glClearColor(0.0, 0.0, 0.0, 1);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
+		glStencilMask(0x00);
 
 		mat4 view = cam.get_view_matrix();
 		mat4 proj = perspective((float)radians(cam.fov), (float)WIDTH / HEIGHT, 0.1f, 100.0f);
@@ -257,6 +231,9 @@ int main() {
 		glBindVertexArray(0);
 
 
+		glStencilMask(0xff);
+		glStencilFunc(GL_ALWAYS, 1, 0xff);
+		glStencilOp(GL_KEEP, GL_REPLACE, GL_REPLACE);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, cube_texture.get_texture_obj());
 		s.set_texture("object.diffuse", 0);
@@ -272,17 +249,32 @@ int main() {
 		glBindVertexArray(cubeVAO);
 		glDrawArrays(GL_TRIANGLES, 0, sizeof(cubeVertices) / 5);
 		glBindVertexArray(0);
-	
-		for (int i = 0; i < grass_position.size(); i++) {
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, grass.get_texture_obj());
-			s.use();
-			s.set_texture("object.diffuse", 0);
-			s.set_matrix("model", translate(mat4(1.0), grass_position[i]));
-			glBindVertexArray(grassVAO);
-			glDrawArrays(GL_TRIANGLES, 0, 6);
-		}
+		glStencilMask(0x00);
 
+		glStencilFunc(GL_NOTEQUAL, 1, 0xff);
+		glDisable(GL_DEPTH_TEST);
+		outline_shader.use();
+		mat4 outlines_box_model(1.0);
+		outlines_box_model = scale(outlines_box_model, vec3(1.1));
+		outline_shader.set_matrix("model", outlines_box_model);
+		outline_shader.set_matrix("view", view);
+		outline_shader.set_matrix("projection", proj);
+		glBindVertexArray(cubeVAO);
+		glDrawArrays(GL_TRIANGLES, 0, sizeof(cubeVertices) / 5);
+		glBindVertexArray(0);
+
+		outline_shader.use();
+		outlines_box_model = mat4(1.0);
+		outlines_box_model = translate(outlines_box_model, vec3(-2.8, 0, 2.5));
+		outlines_box_model = scale(outlines_box_model, vec3(1.1));
+		outline_shader.set_matrix("model", outlines_box_model);
+		outline_shader.set_matrix("view", view);
+		outline_shader.set_matrix("projection", proj);
+		glBindVertexArray(cubeVAO);
+		glDrawArrays(GL_TRIANGLES, 0, sizeof(cubeVertices) / 5);
+		glBindVertexArray(0);
+		glEnable(GL_DEPTH_TEST);
+		
 		glfwSwapBuffers(w);
 		glfwPollEvents();
 	}
@@ -292,4 +284,5 @@ int main() {
 	s.delete_program();
 	glfwTerminate();
 	return 0;
+}
 }
