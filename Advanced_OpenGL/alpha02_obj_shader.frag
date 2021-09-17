@@ -21,7 +21,5 @@ out vec4 FragColor;
 
 void main(){
 	vec4 outcolor=texture2D(object.diffuse,texcoord);
-	if(outcolor.a<0.1)
-		discard;
 	FragColor=outcolor*vec4(light.color,1.0);
 }

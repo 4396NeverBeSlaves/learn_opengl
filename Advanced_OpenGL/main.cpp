@@ -1,6 +1,7 @@
 #include<iostream>
 #include<format>
 #include<vector>
+#include<map>
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
 #include<glm/glm.hpp>
@@ -101,8 +102,9 @@ int main() {
 	glViewport(0, 0, WIDTH, HEIGHT);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_STENCIL_TEST);
 	glDepthFunc(GL_LESS);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 	glfwSetInputMode(w, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetFramebufferSizeCallback(w, framebuf_size_callback);
 	glfwSetKeyCallback(w, key_callback);
@@ -215,7 +217,7 @@ int main() {
 
 	Texture cube_texture("marble.jpg", true);
 	Texture plane_texture("metal.png", true);
-	Texture grass("grass.png", false);
+	Texture grass("window.png", false);
 
 	Shader s("alpha02_obj_shader.vert", "alpha02_obj_shader.frag");
 	//Shader outline_shader("stencil01_obj_shader.vert", "stencil01_outlines_shader.frag");
@@ -273,12 +275,17 @@ int main() {
 		glDrawArrays(GL_TRIANGLES, 0, sizeof(cubeVertices) / 5);
 		glBindVertexArray(0);
 	
+		map<float, vec3> distance;
 		for (int i = 0; i < grass_position.size(); i++) {
+			float dis = glm::distance(cam.cam_pos, grass_position[i]);
+			distance[dis] = grass_position[i];
+		}
+		for (map<float,vec3>::reverse_iterator rit=distance.rbegin(); rit!=distance.rend(); rit++) {
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, grass.get_texture_obj());
 			s.use();
 			s.set_texture("object.diffuse", 0);
-			s.set_matrix("model", translate(mat4(1.0), grass_position[i]));
+			s.set_matrix("model", translate(mat4(1.0), rit->second));
 			glBindVertexArray(grassVAO);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
