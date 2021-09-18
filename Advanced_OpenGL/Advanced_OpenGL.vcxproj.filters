@@ -41,7 +41,10 @@
     <ClCompile Include="stencil01.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="alpha02_facecull03.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="framebuffer04.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -61,13 +64,10 @@
     <None Include="stencil01_outlines_shader.frag">
       <Filter>资源文件</Filter>
     </None>
-    <None Include="alpha02_obj_shader.frag">
+    <None Include="alpha02_facecull03_obj_shader.frag">
       <Filter>资源文件</Filter>
     </None>
-    <None Include="alpha02_obj_shader.vert">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="alpha02_temp.frag">
+    <None Include="alpha02_facecull03_obj_shader.vert">
       <Filter>资源文件</Filter>
     </None>
   </ItemGroup>

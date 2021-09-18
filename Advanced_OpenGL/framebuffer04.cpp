@@ -12,6 +12,8 @@
 #include"Texture.h"
 #include"../stb_image.h"
 
+
+
 using namespace std;
 using namespace glm;
 
@@ -104,64 +106,65 @@ int main() {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_CULL_FACE);
 	glfwSetInputMode(w, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetFramebufferSizeCallback(w, framebuf_size_callback);
 	glfwSetKeyCallback(w, key_callback);
 	glfwSetScrollCallback(w, scroll_callback);
 	glfwSetCursorPosCallback(w, cursor_callback);
 	float cubeVertices[] = {
-		// positions          // texture Coords
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+		// Back face
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f, // Bottom-left
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right
+		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f, // bottom-right         
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f, // bottom-left
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // top-left
+		// Front face
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-left
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // bottom-right
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f, // top-right
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f, // top-right
+		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f, // top-left
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-left
+		// Left face
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-right
+		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-left
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-left
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-left
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-right
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-right
+		// Right face
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-left
+		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-right
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right         
+		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-right
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-left
+		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-left     
+		// Bottom face
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // top-right
+		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f, // top-left
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // bottom-left
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // bottom-left
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-right
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // top-right
+		// Top face
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // top-left
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // bottom-right
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right     
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // bottom-right
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // top-left
+		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f  // bottom-left
 	};
 	float planeVertices[] = {
 		 5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
-		-5.0f, -0.5f,  5.0f,  0.0f, 0.0f,
 		-5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
+		-5.0f, -0.5f,  5.0f,  0.0f, 0.0f,
 
 		 5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
-		-5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
-		 5.0f, -0.5f, -5.0f,  2.0f, 2.0f
+		 5.0f, -0.5f, -5.0f,  2.0f, 2.0f,
+		-5.0f, -0.5f, -5.0f,  0.0f, 2.0f
 	};
 	float transparentVertices[] = {
 		0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
@@ -219,7 +222,7 @@ int main() {
 	Texture plane_texture("metal.png", true);
 	Texture grass("window.png", false);
 
-	Shader s("alpha02_obj_shader.vert", "alpha02_obj_shader.frag");
+	Shader s("framebuffer04_obj_shader.vert", "framebuffer04_obj_shader.frag");
 	//Shader outline_shader("stencil01_obj_shader.vert", "stencil01_outlines_shader.frag");
 
 	float one_second = 0;
@@ -237,7 +240,7 @@ int main() {
 		}
 
 		glClearColor(0.0, 0.0, 0.0, 1);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
 		mat4 view = cam.get_view_matrix();
@@ -274,13 +277,13 @@ int main() {
 		glBindVertexArray(cubeVAO);
 		glDrawArrays(GL_TRIANGLES, 0, sizeof(cubeVertices) / 5);
 		glBindVertexArray(0);
-	
+
 		map<float, vec3> distance;
 		for (int i = 0; i < grass_position.size(); i++) {
 			float dis = glm::distance(cam.cam_pos, grass_position[i]);
 			distance[dis] = grass_position[i];
 		}
-		for (map<float,vec3>::reverse_iterator rit=distance.rbegin(); rit!=distance.rend(); rit++) {
+		for (map<float, vec3>::reverse_iterator rit = distance.rbegin(); rit != distance.rend(); rit++) {
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, grass.get_texture_obj());
 			s.use();

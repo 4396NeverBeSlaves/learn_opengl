@@ -25,16 +25,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="depth00.cpp" />
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="alpha02_facecull03.cpp" />
+    <ClCompile Include="framebuffer04.cpp" />
     <ClCompile Include="stencil01.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="stb_img.cpp" />
     <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="alpha02_obj_shader.frag" />
-    <None Include="alpha02_obj_shader.vert" />
-    <None Include="alpha02_temp.frag" />
+    <None Include="alpha02_facecull03_obj_shader.frag" />
+    <None Include="alpha02_facecull03_obj_shader.vert" />
     <None Include="depth00_obj_shader.frag" />
     <None Include="detph00_obj_shader.vert" />
     <None Include="stencil01_obj_shader.vert" />
