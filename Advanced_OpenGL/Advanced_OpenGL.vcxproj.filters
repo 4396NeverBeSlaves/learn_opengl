@@ -70,5 +70,17 @@
     <None Include="alpha02_facecull03_obj_shader.vert">
       <Filter>资源文件</Filter>
     </None>
+    <None Include="framebuffer04_screen_shader.vert">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="framebuffer04_screen_shader.frag">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="framebuffer04_obj_shader.frag">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="framebuffer04_obj_shader.vert">
+      <Filter>资源文件</Filter>
+    </None>
   </ItemGroup>
 </Project>

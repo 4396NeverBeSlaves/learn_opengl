@@ -37,6 +37,10 @@
     <None Include="alpha02_facecull03_obj_shader.vert" />
     <None Include="depth00_obj_shader.frag" />
     <None Include="detph00_obj_shader.vert" />
+    <None Include="framebuffer04_obj_shader.frag" />
+    <None Include="framebuffer04_obj_shader.vert" />
+    <None Include="framebuffer04_screen_shader.frag" />
+    <None Include="framebuffer04_screen_shader.vert" />
     <None Include="stencil01_obj_shader.vert" />
     <None Include="stencil01_obj_shader.frag" />
     <None Include="stencil01_outlines_shader.frag" />
