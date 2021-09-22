@@ -12,7 +12,7 @@
 #include"Texture.h"
 #include"../stb_image.h"
 
-
+namespace framebuffer04{
 
 using namespace std;
 using namespace glm;
@@ -366,4 +366,5 @@ int main() {
 	s.delete_program();
 	glfwTerminate();
 	return 0;
+}
 }
