@@ -166,13 +166,20 @@ int main() {
 	};
 
 	float screenVertices[] = {
-		-1.0f,1.0f,0.0f,1.0f,
-		-1.0f,-1.0f,0.0f,0.0f,
-		1.0f,1.0f,1.0f,1.0f,
+		//-1.0f,1.0f,0.0f,1.0f,
+		//-1.0f,-1.0f,0.0f,0.0f,
+		//1.0f,1.0f,1.0f,1.0f,
 
-		1.0f,1.0f,1.0f,1.0f,
-		-1.0f,-1.0f,0.0f,0.0f,
-		1.0f,-1.0f,1.0f,0.0f
+		//1.0f,1.0f,1.0f,1.0f,
+		//-1.0f,-1.0f,0.0f,0.0f,
+		//1.0f,-1.0f,1.0f,0.0f
+		-0.25f,1.0f,0.0f,1.0f,
+		-0.25f,0.5f,0.0f,0.0f,
+		0.25f,1.0f,1.0f,1.0f,
+
+		0.25f,1.0f,1.0f,1.0f,
+		-0.25f,0.5f,0.0f,0.0f,
+		0.25f,0.5f,1.0f,0.0f
 	};
 
 
@@ -219,7 +226,7 @@ int main() {
 	glBindTexture(GL_TEXTURE_2D, screen_tex);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WIDTH, HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WIDTH,HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, screen_tex, 0);
 	glGenRenderbuffers(1, &rbo);
 	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
@@ -232,7 +239,7 @@ int main() {
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	Texture cube_texture("marble.jpg", true);
+	Texture cube_texture("container.jpg", true);
 	Texture plane_texture("metal.png", true);
 
 
@@ -253,8 +260,8 @@ int main() {
 			frame = 0;
 		}
 
-
-		glBindFramebuffer(GL_FRAMEBUFFER,fbo);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glViewport(0, 0, WIDTH, HEIGHT);
 		glEnable(GL_DEPTH_TEST);
 		glClearColor(0.1, 0.1, 0.1, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -294,11 +301,53 @@ int main() {
 		glDrawArrays(GL_TRIANGLES, 0, sizeof(cubeVertices) / 5);
 		glBindVertexArray(0);
 
+		glBindFramebuffer(GL_FRAMEBUFFER,fbo);
+		glViewport(0, 0, WIDTH, HEIGHT);
+		glEnable(GL_DEPTH_TEST);
+		glClearColor(0.1, 0.1, 0.1, 1);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		view = lookAt(cam.cam_pos, cam.cam_pos - cam.cam_dir, cam.cam_up);
+		proj = perspective((float)radians(cam.fov), (float)WIDTH / HEIGHT, 0.1f, 100.0f);
+		model = mat4(1.0);
+
+		s.use();
+		s.set_matrix("model", model);
+		s.set_matrix("view", view);
+		s.set_matrix("projection", proj);
+		s.set_uniform_3fv("light.light_pos", vec3(0.0));
+		s.set_uniform_3fv("light.color", vec3(1.0, 1.0, 1.0));
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, plane_texture.get_texture_obj());
+		glBindVertexArray(planeVAO);
+		s.use();
+		s.set_texture("object.diffuse", 0);
+		glDrawArrays(GL_TRIANGLES, 0, sizeof(planeVertices) / 5);
+		glBindVertexArray(0);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, cube_texture.get_texture_obj());
+		s.set_texture("object.diffuse", 0);
+		glBindVertexArray(cubeVAO);
+		glDrawArrays(GL_TRIANGLES, 0, sizeof(cubeVertices) / 5);
+		glBindVertexArray(0);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, cube_texture.get_texture_obj());
+		s.use();
+		s.set_matrix("model", translate(mat4(1.0), vec3(-2.8, 0, 2.5)));
+		s.set_texture("object.diffuse", 0);
+		glBindVertexArray(cubeVAO);
+		glDrawArrays(GL_TRIANGLES, 0, sizeof(cubeVertices) / 5);
+		glBindVertexArray(0);
+
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glViewport(0,0, WIDTH, HEIGHT);
 		glDisable(GL_DEPTH_TEST);
-		glClearColor(1.0, 1.0, 1.0, 1);
-		glClear(GL_COLOR_BUFFER_BIT);
+		//glClearColor(1.0, 1.0, 1.0, 1);
+		//glClear(GL_COLOR_BUFFER_BIT);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D,screen_tex);
