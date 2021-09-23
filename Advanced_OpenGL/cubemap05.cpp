@@ -1,5 +1,6 @@
 #include<iostream>
 #include<format>
+#include<vector>
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
 #include<glm/glm.hpp>
@@ -107,48 +108,48 @@ int main() {
 	glfwSetScrollCallback(w, scroll_callback);
 	glfwSetCursorPosCallback(w, cursor_callback);
 	float cubeVertices[] = {
-		// positions          // texture Coords
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+		// positions          // texture Coords  //normal
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,	 0.0f,  0.0f, -1.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,	 0.0f,  0.0f, -1.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,	 0.0f,  0.0f, -1.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,	 0.0f,  0.0f, -1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,	 0.0f,  0.0f, -1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,	 0.0f,  0.0f, -1.0f,
 
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,	 0.0f,  0.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,	 0.0f,  0.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,	 0.0f,  0.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,	 0.0f,  0.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,	 0.0f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,	 0.0f,  0.0f, 1.0f,
 
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,	-1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,	-1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,	-1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,	-1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,	-1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,	-1.0f,  0.0f,  0.0f,
 
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,	 1.0f,  0.0f,  0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,	 1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,	 1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,	 1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,	 1.0f,  0.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,	 1.0f,  0.0f,  0.0f,
 
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,	 0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,	 0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,	 0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,	 0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,	 0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,	 0.0f, -1.0f,  0.0f,
 
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,	 0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,	 0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,	 0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,	 0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,	 0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,	 0.0f,  1.0f,  0.0f
 	};
 	float planeVertices[] = {
 		 5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
@@ -212,9 +213,11 @@ int main() {
 	glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), &cubeVertices, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
 	glBindVertexArray(0);
 
 	unsigned int planeVAO, planeVBO;
@@ -239,6 +242,50 @@ int main() {
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glBindVertexArray(0);
 
+	const int x_segments = 50;
+	const int y_segments = 50;
+
+	vector<float> sphere_vertices;
+	vector<unsigned int> sphere_idxs;
+	for (size_t i = 0; i <= y_segments; i++) {
+		for (size_t j = 0; j <= x_segments; j++) {
+			float x_segment = j * 1.0 / x_segments;
+			float y_segment = i * 1.0 / y_segments;
+
+			float x = sin(pi<float>() * y_segment) * cos((2 * pi<float>() * x_segment));
+			float y = cos(pi<float>() * y_segment);
+			float z = sin(pi<float>() * y_segment) * sin((2 * pi<float>() * x_segment));
+			sphere_vertices.push_back(x);
+			sphere_vertices.push_back(y);
+			sphere_vertices.push_back(z);
+		}
+	}
+
+	for (size_t i = 0; i < y_segments; i++) {
+		for (size_t j = 0; j < x_segments; j++) {
+			sphere_idxs.push_back(i* (x_segments+1) + j);
+			sphere_idxs.push_back(i* (x_segments+1) + j+1);
+			sphere_idxs.push_back((i+1)* (x_segments + 1)+j+1);
+			sphere_idxs.push_back(i* (x_segments + 1) + j);
+			sphere_idxs.push_back((i + 1)* (x_segments + 1) + j + 1);
+			sphere_idxs.push_back((i + 1)* (x_segments + 1) + j);
+		}
+	}
+
+	unsigned int sphereVAO, sphereVBO,sphereEBO;
+	glGenVertexArrays(1, &sphereVAO);
+	glGenBuffers(1, &sphereVBO);
+	glBindVertexArray(sphereVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, sphereVBO);
+	glBufferData(GL_ARRAY_BUFFER,sphere_vertices.size()*sizeof(float) , sphere_vertices.data(), GL_STATIC_DRAW);
+	glGenBuffers(1, &sphereEBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sphereEBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sphere_idxs.size()*sizeof(int), sphere_idxs.data(), GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glBindVertexArray(0);
+
+
 	string cubemap_path[] = { R"(./skybox/right.jpg)",R"(./skybox/left.jpg)" ,R"(./skybox/top.jpg)",
 							R"(./skybox/bottom.jpg)" ,R"(./skybox/front.jpg)" ,R"(./skybox/back.jpg)" };
 	Texture cube_texture("marble.jpg", true);
@@ -247,6 +294,8 @@ int main() {
 
 	Shader obj_shader("cubemap05_obj_shader.vert", "cubemap05_obj_shader.frag");
 	Shader cubemap_shader("cubemap05_cubemap_shader.vert", "cubemap05_cubemap_shader.frag");
+	Shader sphere_shader("cubemap05_sphere.vert", "cubemap05_sphere.frag");
+
 
 	float one_second = 0;
 	int frame = 0;
@@ -274,18 +323,26 @@ int main() {
 		obj_shader.set_matrix("model", model);
 		obj_shader.set_matrix("view", view);
 		obj_shader.set_matrix("projection", proj);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, cube_texture.get_texture_obj());
-		obj_shader.set_texture("diffusemap", 0);
-		glBindVertexArray(cubeVAO);
-		glDrawArrays(GL_TRIANGLES, 0, sizeof(cubeVertices) / 5);
-		glBindVertexArray(0);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, cube_texture.get_texture_obj());
+		//obj_shader.set_texture("diffusemap", 0);
+		//glActiveTexture(GL_TEXTURE1);
+		//glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap.get_texture_obj());
+		//obj_shader.set_texture("cubemap", 1);
+		//obj_shader.set_uniform_3fv("eye_pos", cam.cam_pos);
+		//glBindVertexArray(cubeVAO);
+		//glDrawArrays(GL_TRIANGLES, 0, sizeof(cubeVertices) / 5);
+		//glBindVertexArray(0);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, cube_texture.get_texture_obj());
 		obj_shader.use();
 		obj_shader.set_matrix("model", translate(mat4(1.0), vec3(-2.8, 0, 2.5)));
 		obj_shader.set_texture("diffusemap", 0);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap.get_texture_obj());
+		obj_shader.set_texture("cubemap", 1);
+		obj_shader.set_uniform_3fv("eye_pos", cam.cam_pos);
 		glBindVertexArray(cubeVAO);
 		glDrawArrays(GL_TRIANGLES, 0, sizeof(cubeVertices) / 5);
 		glBindVertexArray(0);
@@ -297,8 +354,25 @@ int main() {
 		obj_shader.use();
 		obj_shader.set_matrix("model", model);
 		obj_shader.set_texture("diffusemap", 0);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap.get_texture_obj());
+		obj_shader.set_texture("cubemap", 1);
+		obj_shader.set_uniform_3fv("eye_pos", cam.cam_pos);
 		glDrawArrays(GL_TRIANGLES, 0, sizeof(planeVertices) / 5);
 		glBindVertexArray(0);
+
+		sphere_shader.use();
+		sphere_shader.set_matrix("model", model);
+		sphere_shader.set_matrix("view", view);
+		sphere_shader.set_matrix("projection", proj);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap.get_texture_obj());
+		obj_shader.set_texture("cubemap", 0);
+		obj_shader.set_uniform_3fv("eye_pos", cam.cam_pos);
+		glBindVertexArray(sphereVAO);
+		glDrawElements(GL_TRIANGLES,x_segments*y_segments*6,GL_UNSIGNED_INT,0);
+		glBindVertexArray(0);
+
 
 		glDepthFunc(GL_LEQUAL);
 		cubemap_shader.use();

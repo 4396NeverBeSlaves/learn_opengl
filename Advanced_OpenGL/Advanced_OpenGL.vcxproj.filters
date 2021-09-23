@@ -97,5 +97,11 @@
     <None Include="cubemap05_obj_shader.vert">
       <Filter>资源文件</Filter>
     </None>
+    <None Include="cubemap05_sphere.vert">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="cubemap05_sphere.frag">
+      <Filter>资源文件</Filter>
+    </None>
   </ItemGroup>
 </Project>
