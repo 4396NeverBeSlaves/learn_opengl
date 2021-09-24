@@ -15,7 +15,7 @@ out vec3 frag_world_pos;
 out vec3 normal;
 
 void main(){
-
+	
 	gl_Position=projection*view*model*vec4(aPos,1.0);
 	frag_world_pos=vec3(model*vec4(aPos,1.0));
 	vec3 center_world_pos=vec3(model*vec4(sphere_center,1.0));

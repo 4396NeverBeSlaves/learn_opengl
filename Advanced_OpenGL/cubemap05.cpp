@@ -11,6 +11,8 @@
 #include"Texture.h"
 #include"../stb_image.h"
 
+
+namespace cubemap05{
 using namespace std;
 using namespace glm;
 
@@ -304,7 +306,7 @@ int main() {
 		one_second += delta_time;
 		frame++;
 		if (one_second >= 1.0) {
-			string title = format("Advanced_OpenGL. [{:6.1f}FPS, {:5.2f}ms] [FOV: {:4.1f}] [Yaw:{:7.1f}, Pitch:{:5.1f}] [Position:{:5.1f} {:5.1f} {:5.1f}, Direction:{:4.1f} {:4.1f} {:4.1f}]",
+			string title = format("Cubemap. [{:6.1f}FPS, {:5.2f}ms] [FOV: {:4.1f}] [Yaw:{:7.1f}, Pitch:{:5.1f}] [Position:{:5.1f} {:5.1f} {:5.1f}, Direction:{:4.1f} {:4.1f} {:4.1f}]",
 				frame / one_second, one_second / frame * 1000, cam.fov, cam.yaw_, cam.pitch_, cam.cam_pos.x, cam.cam_pos.y, cam.cam_pos.z, cam.cam_dir.x, cam.cam_dir.y, cam.cam_dir.z);
 			glfwSetWindowTitle(w, title.c_str());
 			one_second = 0.0;
@@ -396,4 +398,5 @@ int main() {
 	cubemap_shader.delete_program();
 	glfwTerminate();
 	return 0;
+}
 }

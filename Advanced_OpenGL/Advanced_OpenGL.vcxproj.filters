@@ -50,6 +50,9 @@
     <ClCompile Include="cubemap05.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="advanced_glsl_07.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="depth00_obj_shader.frag">
@@ -101,6 +104,27 @@
       <Filter>资源文件</Filter>
     </None>
     <None Include="cubemap05_sphere.frag">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="advancedglsl07_obj_shader.frag">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="advancedglsl07_obj_shader.vert">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="advancedglsl07_4colorboxes_shader.vert">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="advancedglsl07_redbox_shader.frag">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="advancedglsl07_greenbox_shader.frag">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="advancedglsl07_bluebox_shader.frag">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="advancedglsl07_whitebox_shader.frag">
       <Filter>资源文件</Filter>
     </None>
   </ItemGroup>

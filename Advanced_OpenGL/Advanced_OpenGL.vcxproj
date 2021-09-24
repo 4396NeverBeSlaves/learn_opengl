@@ -24,6 +24,7 @@
     <ClInclude Include="Texture.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="advanced_glsl_07.cpp" />
     <ClCompile Include="cubemap05.cpp" />
     <ClCompile Include="depth00.cpp" />
     <ClCompile Include="alpha02_facecull03.cpp" />
@@ -34,6 +35,13 @@
     <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="advancedglsl07_bluebox_shader.frag" />
+    <None Include="advancedglsl07_greenbox_shader.frag" />
+    <None Include="advancedglsl07_redbox_shader.frag" />
+    <None Include="advancedglsl07_4colorboxes_shader.vert" />
+    <None Include="advancedglsl07_obj_shader.frag" />
+    <None Include="advancedglsl07_obj_shader.vert" />
+    <None Include="advancedglsl07_whitebox_shader.frag" />
     <None Include="alpha02_facecull03_obj_shader.frag" />
     <None Include="alpha02_facecull03_obj_shader.vert" />
     <None Include="cubemap05_cubemap_shader.frag" />
