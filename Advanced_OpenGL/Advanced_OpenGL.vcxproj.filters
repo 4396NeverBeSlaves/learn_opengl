@@ -53,6 +53,9 @@
     <ClCompile Include="advanced_glsl_07.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="geometry_shader08.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="depth00_obj_shader.frag">
@@ -125,6 +128,15 @@
       <Filter>资源文件</Filter>
     </None>
     <None Include="advancedglsl07_whitebox_shader.frag">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="geometry_shader08_obj_shader.vert">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="geometry_shader08_obj_shader.frag">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="geometry_shader08_obj_shader.geom">
       <Filter>资源文件</Filter>
     </None>
   </ItemGroup>

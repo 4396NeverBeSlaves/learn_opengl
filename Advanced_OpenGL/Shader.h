@@ -15,6 +15,7 @@ class Shader {
 public:
 	unsigned int id;
 	Shader(const string& vertex_shader_path,const string& frag_shader_path);
+	Shader(const string& vertex_shader_path, const string& geometry_shader_path,const string& frag_shader_path);
 
 	void use();
 	void delete_program();

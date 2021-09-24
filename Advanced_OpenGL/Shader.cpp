@@ -49,6 +49,69 @@ Shader::Shader(const string& vertex_shader_path, const string& frag_shader_path)
 
 }
 
+Shader::Shader(const string& vertex_shader_path, const string& geometry_shader_path, const string& frag_shader_path) {
+	fstream vs_file,gs_file, fs_file;
+	stringstream vs_string_stream, gs_string_stream, fs_string_stream;
+	string vertex_shader_source, geometry_shader_source,frag_shader_source;
+
+	vs_file.exceptions(fstream::badbit | fstream::failbit);
+	gs_file.exceptions(fstream::badbit | fstream::failbit);
+	fs_file.exceptions(fstream::badbit | fstream::failbit);
+	try {
+		vs_file.open(vertex_shader_path);
+		gs_file.open(geometry_shader_path);
+		fs_file.open(frag_shader_path);
+
+		vs_string_stream << vs_file.rdbuf();
+		gs_string_stream << gs_file.rdbuf();
+		fs_string_stream << fs_file.rdbuf();
+
+		vertex_shader_source = vs_string_stream.str();
+		geometry_shader_source = gs_string_stream.str();
+		frag_shader_source = fs_string_stream.str();
+
+		vs_file.close();
+		gs_file.close();
+		fs_file.close();
+	}
+	catch (fstream::failure e) {
+		cout << "Read shader file failed!" << endl;
+	}
+
+	const char* vs_source = vertex_shader_source.c_str();
+	const char* gs_source = geometry_shader_source.c_str();
+	const char* fs_source = frag_shader_source.c_str();
+
+
+	unsigned int vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+	unsigned int geometry_shader = glCreateShader(GL_GEOMETRY_SHADER);
+	unsigned int frag_shader = glCreateShader(GL_FRAGMENT_SHADER);
+	id = glCreateProgram();
+
+	glShaderSource(vertex_shader, 1, &vs_source, NULL);
+	glCompileShader(vertex_shader);
+	check_shader(vertex_shader);
+
+	glShaderSource(geometry_shader, 1, &gs_source, NULL);
+	glCompileShader(geometry_shader);
+	check_shader(geometry_shader);
+
+	glShaderSource(frag_shader, 1, &fs_source, NULL);
+	glCompileShader(frag_shader);
+	check_shader(frag_shader);
+
+	glAttachShader(id, vertex_shader);
+	glAttachShader(id, geometry_shader);
+	glAttachShader(id, frag_shader);
+
+	glLinkProgram(id);
+	check_program(id);
+	glDeleteShader(vertex_shader);
+	glDeleteShader(geometry_shader);
+	glDeleteShader(frag_shader);
+
+}
+
 void Shader::check_shader(int shader) {
 	int compile_status;
 	char log[512];
