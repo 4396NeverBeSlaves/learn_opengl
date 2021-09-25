@@ -56,6 +56,9 @@
     <ClCompile Include="geometry_shader08.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="geometry_shader08_explosion_normal.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="depth00_obj_shader.frag">
@@ -137,6 +140,33 @@
       <Filter>资源文件</Filter>
     </None>
     <None Include="geometry_shader08_obj_shader.geom">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="geometry_shader08_explosion_normal_cubemap_shader.frag">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="geometry_shader08_explosion_normal_cubemap_shader.vert">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="geometry_shader08_explosion_normal_obj_shader.frag">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="geometry_shader08_explosion_normal_obj_shader.vert">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="geometry_shader08_explosion_normal_sphere.frag">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="geometry_shader08_explosion_normal_sphere.vert">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="geometry_shader08_explosion_normal_obj_shader.geom">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="geometry_shader08_explosion_normal_sphere.geom">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="geometry_shader08_explosion_normal_obj_shader_normal.frag">
       <Filter>资源文件</Filter>
     </None>
   </ItemGroup>

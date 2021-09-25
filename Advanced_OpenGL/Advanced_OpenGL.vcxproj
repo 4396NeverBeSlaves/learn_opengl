@@ -30,6 +30,7 @@
     <ClCompile Include="alpha02_facecull03.cpp" />
     <ClCompile Include="framebuffer04.cpp" />
     <ClCompile Include="geometry_shader08.cpp" />
+    <ClCompile Include="geometry_shader08_explosion_normal.cpp" />
     <ClCompile Include="stencil01.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="stb_img.cpp" />
@@ -57,6 +58,15 @@
     <None Include="framebuffer04_obj_shader.vert" />
     <None Include="framebuffer04_screen_shader.frag" />
     <None Include="framebuffer04_screen_shader.vert" />
+    <None Include="geometry_shader08_explosion_normal_cubemap_shader.frag" />
+    <None Include="geometry_shader08_explosion_normal_cubemap_shader.vert" />
+    <None Include="geometry_shader08_explosion_normal_obj_shader.frag" />
+    <None Include="geometry_shader08_explosion_normal_obj_shader.geom" />
+    <None Include="geometry_shader08_explosion_normal_obj_shader.vert" />
+    <None Include="geometry_shader08_explosion_normal_obj_shader_normal.frag" />
+    <None Include="geometry_shader08_explosion_normal_sphere.frag" />
+    <None Include="geometry_shader08_explosion_normal_sphere.geom" />
+    <None Include="geometry_shader08_explosion_normal_sphere.vert" />
     <None Include="geometry_shader08_obj_shader.frag" />
     <None Include="geometry_shader08_obj_shader.geom" />
     <None Include="geometry_shader08_obj_shader.vert" />

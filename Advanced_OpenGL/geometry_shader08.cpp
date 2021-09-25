@@ -10,6 +10,7 @@
 #include"Texture.h"
 #include"../stb_image.h"
 
+namespace geometry_shader08{
 
 using namespace std;
 using namespace glm;
@@ -161,4 +162,4 @@ int main() {
 	s.delete_program();
 	glfwTerminate();
 	return 0;
-}
+}}
