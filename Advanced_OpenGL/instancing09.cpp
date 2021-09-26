@@ -12,7 +12,7 @@
 #include"../stb_image.h"
 
 
-namespace geometry_shader08_explosin_normal{
+
 using namespace std;
 using namespace glm;
 
@@ -20,7 +20,7 @@ using namespace glm;
 
 const int WIDTH = 900;
 const int HEIGHT = 900;
-vec3 cam_pos(0, 0, 2);
+vec3 cam_pos(20,20, 36);
 vec3 cam_dir(0, 0, -1);
 vec3 cam_up(0, 1, 0);
 Camera cam(cam_pos, cam_dir, cam_up);
@@ -85,6 +85,7 @@ void init() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	//glfwWindowHint(GLFW_SAMPLES,4);
 }
 
 int main() {
@@ -104,6 +105,7 @@ int main() {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
+	//glEnable(GL_MULTISAMPLE);
 	glfwSetInputMode(w, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetFramebufferSizeCallback(w, framebuf_size_callback);
 	glfwSetKeyCallback(w, key_callback);
@@ -222,18 +224,6 @@ int main() {
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
 	glBindVertexArray(0);
 
-	unsigned int planeVAO, planeVBO;
-	glGenVertexArrays(1, &planeVAO);
-	glGenBuffers(1, &planeVBO);
-	glBindVertexArray(planeVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), &planeVertices, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	glBindVertexArray(0);
-
 	unsigned int cubemapVAO, cubemapVBO;
 	glGenVertexArrays(1, &cubemapVAO);
 	glGenBuffers(1, &cubemapVBO);
@@ -244,8 +234,8 @@ int main() {
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glBindVertexArray(0);
 
-	const int x_segments = 50;
-	const int y_segments = 50;
+	const int x_segments = 2;
+	const int y_segments = 2;
 
 	vector<float> sphere_vertices;
 	vector<unsigned int> sphere_idxs;
@@ -274,31 +264,40 @@ int main() {
 		}
 	}
 
-	unsigned int sphereVAO, sphereVBO, sphereEBO;
+	const int x_nums = 300;
+	const int y_nums = 300;
+	vec3 *offsets=new vec3[x_nums * y_nums];
+	for (size_t i = 0; i < x_nums; i++) {
+		for (size_t j = 0; j < y_nums; j++) {
+			offsets[i * x_nums + j] = vec3(3 * i, 3 * j, 0);
+		}
+	}
+
+	unsigned int sphereVAO, sphereVBO, sphereEBO,offsetsVBO;
 	glGenVertexArrays(1, &sphereVAO);
 	glGenBuffers(1, &sphereVBO);
 	glBindVertexArray(sphereVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, sphereVBO);
 	glBufferData(GL_ARRAY_BUFFER, sphere_vertices.size() * sizeof(float), sphere_vertices.data(), GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glGenBuffers(1, &sphereEBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sphereEBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sphere_idxs.size() * sizeof(int), sphere_idxs.data(), GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glGenBuffers(1, &offsetsVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, offsetsVBO);
+	glBufferData(GL_ARRAY_BUFFER, x_nums* y_nums*3*4, &offsets[0], GL_STATIC_DRAW);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glVertexAttribDivisor(1,1);
 	glBindVertexArray(0);
-
 
 	string cubemap_path[] = { R"(./skybox/right.jpg)",R"(./skybox/left.jpg)" ,R"(./skybox/top.jpg)",
 							R"(./skybox/bottom.jpg)" ,R"(./skybox/front.jpg)" ,R"(./skybox/back.jpg)" };
-	Texture cube_texture("marble.jpg", true);
-	Texture plane_texture("metal.png", true);
 	Texture cubemap(cubemap_path, false);
 
-	Shader obj_shader("geometry_shader08_explosion_normal_obj_shader.vert", "geometry_shader08_explosion_normal_obj_shader.frag");
-	Shader obj_normal_shader("geometry_shader08_explosion_normal_obj_shader.vert","geometry_shader08_explosion_normal_obj_shader.geom", "geometry_shader08_explosion_normal_obj_shader_normal.frag");
-	Shader cubemap_shader("geometry_shader08_explosion_normal_cubemap_shader.vert", "geometry_shader08_explosion_normal_cubemap_shader.frag");
-	Shader sphere_shader("geometry_shader08_explosion_normal_sphere.vert", "geometry_shader08_explosion_normal_sphere.geom","geometry_shader08_explosion_normal_sphere.frag");
-
+	Shader cubemap_shader("instancing09_cube.vert", "instancing09_cube.frag");
+	Shader sphere_shader("instancing09_sphere.vert", "instancing09_sphere.frag");
 
 	float one_second = 0;
 	int frame = 0;
@@ -307,7 +306,7 @@ int main() {
 		one_second += delta_time;
 		frame++;
 		if (one_second >= 1.0) {
-			string title = format("Cubemap. [{:6.1f}FPS, {:5.2f}ms] [FOV: {:4.1f}] [Yaw:{:7.1f}, Pitch:{:5.1f}] [Position:{:5.1f} {:5.1f} {:5.1f}, Direction:{:4.1f} {:4.1f} {:4.1f}]",
+			string title = format("Instancing. [{:6.1f}FPS, {:5.2f}ms] [FOV: {:4.1f}] [Yaw:{:7.1f}, Pitch:{:5.1f}] [Position:{:5.1f} {:5.1f} {:5.1f}, Direction:{:4.1f} {:4.1f} {:4.1f}]",
 				frame / one_second, one_second / frame * 1000, cam.fov, cam.yaw_, cam.pitch_, cam.cam_pos.x, cam.cam_pos.y, cam.cam_pos.z, cam.cam_dir.x, cam.cam_dir.y, cam.cam_dir.z);
 			glfwSetWindowTitle(w, title.c_str());
 			one_second = 0.0;
@@ -319,58 +318,26 @@ int main() {
 
 
 		mat4 view = cam.get_view_matrix();
-		mat4 proj = perspective((float)radians(cam.fov), (float)WIDTH / HEIGHT, 0.1f, 100.0f);
+		mat4 proj = perspective((float)radians(cam.fov), (float)WIDTH / HEIGHT, 0.1f, 1000.0f);
 		mat4 model = mat4(1.0);
+		
+		//for (size_t i = 0; i < 300; i++) {
+		//	for (size_t j = 0; j < 300; j++) {
+		//		sphere_shader.use();
+		//		sphere_shader.set_matrix("model", translate(model, vec3(3 * i, 3 * j, 0)));
+		//		sphere_shader.set_matrix("view", view);
+		//		sphere_shader.set_matrix("projection", proj);
+		//		glActiveTexture(GL_TEXTURE0);
+		//		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap.get_texture_obj());
+		//		sphere_shader.set_texture("cubemap", 0);
+		//		sphere_shader.set_uniform_3fv("eye_pos", cam.cam_pos);
+		//		sphere_shader.set_uniform_1f("time", current_time);
+		//		glBindVertexArray(sphereVAO);
+		//		glDrawElements(GL_TRIANGLES, x_segments * y_segments * 6, GL_UNSIGNED_INT, 0);
+		//		glBindVertexArray(0);
+		//	}
+		//}
 
-		obj_shader.use();
-		obj_shader.set_matrix("view", view);
-		obj_shader.set_matrix("projection", proj);
-		obj_shader.set_matrix("model", translate(mat4(1.0), vec3(-2.0, 0.0, 1.0)));
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, cube_texture.get_texture_obj());
-		obj_shader.set_texture("diffusemap", 0);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap.get_texture_obj());
-		obj_shader.set_texture("cubemap", 1);
-		obj_shader.set_uniform_3fv("eye_pos", cam.cam_pos);
-		glBindVertexArray(cubeVAO);
-		glDrawArrays(GL_TRIANGLES, 0, sizeof(cubeVertices) / 5);
-		glBindVertexArray(0);
-
-		obj_normal_shader.use();
-		obj_normal_shader.set_matrix("view", view);
-		obj_normal_shader.set_matrix("projection", proj);
-		obj_normal_shader.set_matrix("model", translate(mat4(1.0), vec3(-2.0, 0.0, 1.0)));
-		glBindVertexArray(cubeVAO);
-		glDrawArrays(GL_TRIANGLES, 0, sizeof(cubeVertices) / 5);
-		glBindVertexArray(0);
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, cube_texture.get_texture_obj());
-		obj_shader.use();
-		obj_shader.set_matrix("model", translate(mat4(1.0), vec3(-2.8, 0, 2.5)));
-		obj_shader.set_texture("diffusemap", 0);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap.get_texture_obj());
-		obj_shader.set_texture("cubemap", 1);
-		obj_shader.set_uniform_3fv("eye_pos", cam.cam_pos);
-		glBindVertexArray(cubeVAO);
-		glDrawArrays(GL_TRIANGLES, 0, sizeof(cubeVertices) / 5);
-		glBindVertexArray(0);
-
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, plane_texture.get_texture_obj());
-		glBindVertexArray(planeVAO);
-		obj_shader.use();
-		obj_shader.set_matrix("model", model);
-		obj_shader.set_texture("diffusemap", 0);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap.get_texture_obj());
-		obj_shader.set_texture("cubemap", 1);
-		obj_shader.set_uniform_3fv("eye_pos", cam.cam_pos);
-		glDrawArrays(GL_TRIANGLES, 0, sizeof(planeVertices) / 5);
-		glBindVertexArray(0);
 
 		sphere_shader.use();
 		sphere_shader.set_matrix("model", model);
@@ -382,7 +349,7 @@ int main() {
 		sphere_shader.set_uniform_3fv("eye_pos", cam.cam_pos);
 		sphere_shader.set_uniform_1f("time", current_time);
 		glBindVertexArray(sphereVAO);
-		glDrawElements(GL_TRIANGLES, x_segments * y_segments * 6, GL_UNSIGNED_INT, 0);
+		glDrawElementsInstanced(GL_TRIANGLES, x_segments * y_segments * 6, GL_UNSIGNED_INT, 0, x_nums* y_nums);
 		glBindVertexArray(0);
 
 
@@ -401,12 +368,10 @@ int main() {
 		glfwSwapBuffers(w);
 		glfwPollEvents();
 	}
-
+	delete[] offsets;
 	//glDeleteBuffers(1, &vbo);
 	//glDeleteVertexArrays(1, &vao);
-	obj_shader.delete_program();
 	cubemap_shader.delete_program();
 	glfwTerminate();
 	return 0;
-}
 }

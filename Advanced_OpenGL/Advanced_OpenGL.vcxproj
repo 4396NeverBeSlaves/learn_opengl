@@ -31,6 +31,7 @@
     <ClCompile Include="framebuffer04.cpp" />
     <ClCompile Include="geometry_shader08.cpp" />
     <ClCompile Include="geometry_shader08_explosion_normal.cpp" />
+    <ClCompile Include="instancing09.cpp" />
     <ClCompile Include="stencil01.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="stb_img.cpp" />
@@ -70,6 +71,11 @@
     <None Include="geometry_shader08_obj_shader.frag" />
     <None Include="geometry_shader08_obj_shader.geom" />
     <None Include="geometry_shader08_obj_shader.vert" />
+    <None Include="instancing09_cube.frag" />
+    <None Include="instancing09_cube.vert" />
+    <None Include="instancing09_sphere.frag" />
+    <None Include="instancing09_sphere.geom" />
+    <None Include="instancing09_sphere.vert" />
     <None Include="stencil01_obj_shader.vert" />
     <None Include="stencil01_obj_shader.frag" />
     <None Include="stencil01_outlines_shader.frag" />

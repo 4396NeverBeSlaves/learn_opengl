@@ -59,6 +59,9 @@
     <ClCompile Include="geometry_shader08_explosion_normal.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="instancing09.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="depth00_obj_shader.frag">
@@ -167,6 +170,21 @@
       <Filter>资源文件</Filter>
     </None>
     <None Include="geometry_shader08_explosion_normal_obj_shader_normal.frag">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="instancing09_cube.frag">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="instancing09_cube.vert">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="instancing09_sphere.frag">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="instancing09_sphere.geom">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="instancing09_sphere.vert">
       <Filter>资源文件</Filter>
     </None>
   </ItemGroup>
