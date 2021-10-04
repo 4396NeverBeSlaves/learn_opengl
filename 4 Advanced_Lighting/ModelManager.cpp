@@ -10,6 +10,12 @@ void ModelManger::add_model(Model* m) {
 	models.push_back(m);
 }
 
+void ModelManger::change_shader(Shader* s) {
+	for (vector<Model*>::iterator it = ModelManger::models.begin(); it != ModelManger::models.end(); it++) {
+		(*it)->shader = s;
+	}
+}
+
 void ModelManger::draw() {
 	for (vector<Model*>::iterator it = models.begin(); it != models.end(); it++) {
 		(*it)->draw();

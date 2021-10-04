@@ -16,6 +16,7 @@
 #include"Model.h"
 #include"ModelManager.h"
 
+namespace basic00{
 vector<Texture> textures;
 
 using namespace std;
@@ -114,8 +115,8 @@ int main() {
 
 	float time1 = glfwGetTime();
 
-	Shader* objshader=new Shader("shadow_mapping_obj_shader.vert", "shadow_mapping_obj_shader.frag");
-	Shader* lightingshader = new Shader("shadow_mapping_light_shader.vert", "shadow_mapping_light_shader.frag");
+	Shader* objshader=new Shader("basic_obj_shader.vert", "basic_obj_shader.frag");
+	Shader* lightingshader = new Shader("basic_light_shader.vert", "basic_light_shader.frag");
 
 	Model* plane=new Model(R"(C:\Users\X\Desktop\plane.obj)", objshader);
 	Model* box1=new Model(R"(C:\Users\X\Desktop\box_marble.obj)", objshader);
@@ -181,4 +182,5 @@ int main() {
 	ModelManger::destroy_all_models();
 	glfwTerminate();
 	return 0;
+}
 }

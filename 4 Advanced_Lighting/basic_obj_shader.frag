@@ -34,9 +34,8 @@ struct SpotLight{
 in vec3 normal;
 in vec3 frag_world_pos;
 in vec2 texcoord;
-in vec4 lighting_position;
 
-#define NUMS_POINT_LIGHTS 1
+#define NUMS_POINT_LIGHTS 4
 uniform float time;
 uniform vec3 eye_pos;
 uniform Material material;
@@ -44,40 +43,11 @@ uniform DirectionLight dir_light;
 uniform PointLight point_lights[NUMS_POINT_LIGHTS];
 uniform SpotLight spot_light;
 
-uniform sampler2D shadowmap;
-
 out vec4 FragColor;
 
-float calc_shadow(vec4 lighting_position,vec3 dir_light,vec3 normal){
-	vec3 lighting_pos=lighting_position.xyz/lighting_position.w;
-	lighting_pos=(lighting_pos+1.0)*0.5;
-//	float real_depth=texture(shadowmap,vec2(lighting_pos.x,lighting_pos.y)).r;
-//	float diff=lighting_pos.z-real_depth;
-//	//return lighting_pos.z>real_depth?1.0:0.0;
-//
-//	//float delta=max(0.002*(1.0-dot(dir_light,normal)),0.001);
-//	float delta=0.001;
-//	return diff>delta?1.0:0.0;
-
-	vec2 offset=1.0/textureSize(shadowmap,0);
-	float shadow=0.0;
-	float bias=0.002;
-
-	for(int y=-1;y<=1;y++){
-		for(int x=-1;x<=1;x++){
-			float single_depth=texture(shadowmap,vec2(lighting_pos.x,lighting_pos.y)+vec2(x*offset.x,y*offset.y)).r;
-			shadow+= single_depth+bias<lighting_pos.z?1.0:0.0;
-		}
-	}
-
-	shadow=shadow/9.0;
-	return shadow;
-}
-
 vec3 cal_direction_light(DirectionLight light){
-	
 
-	vec3 ambient=vec3(texture2D(material.texture_diffuse0,texcoord))*light.color*0.5f;
+	vec3 ambient=vec3(texture2D(material.texture_diffuse0,texcoord))*light.color*0.2f;
 	vec3 direction=normalize(-light.direction);
 	float diffuse_coef=max(dot(direction,normalize(normal)),0);
 	vec3 diffuse=diffuse_coef*vec3(texture2D(material.texture_diffuse0,texcoord))*light.color;
@@ -92,9 +62,7 @@ vec3 cal_direction_light(DirectionLight light){
 		specular=vec3(0.0);
 	}
 
-	float shadow=calc_shadow(lighting_position,direction,normal);
-
-	return ambient+(1.0-shadow)*(diffuse+specular);
+	return ambient+diffuse+specular;
 }
 
 vec3 cal_point_light(PointLight light){
@@ -158,11 +126,11 @@ vec3 cal_spot_light(SpotLight light){
 void main(){
 	vec3 result=vec3(0.0);
 
-	result+=cal_direction_light(dir_light);
-//	for(int i=0;i<NUMS_POINT_LIGHTS;i++){
-//		result+=cal_point_light(point_lights[i]);
-//	}
-	//result+=cal_spot_light(spot_light);
+	//result+=cal_direction_light(dir_light);
+	for(int i=0;i<NUMS_POINT_LIGHTS;i++){
+		result+=cal_point_light(point_lights[i]);
+	}
+	result+=cal_spot_light(spot_light);
 	//vec3 emission=texture2D(material.emission,texcoord).rgb;
 	vec3 emission=vec3(0.0);
 	//result=pow(result,vec3(1.0/2.2));

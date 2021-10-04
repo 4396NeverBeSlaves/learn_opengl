@@ -12,9 +12,9 @@ Model::~Model() {
 void Model::draw() {
 
 	shader->use();
-	shader->set_matrix("view", cam.get_view_matrix());
-	shader->set_matrix("projection", perspective((float)radians(cam.fov), (float)WIDTH / HEIGHT, 0.1f, 100.0f));
-	shader->set_uniform_3fv("eye_pos", cam.cam_pos);
+	//shader->set_matrix("view", cam.get_view_matrix());
+	//shader->set_matrix("projection", perspective((float)radians(cam.fov), (float)WIDTH / HEIGHT, 0.1f, 100.0f));
+	//shader->set_uniform_3fv("eye_pos", cam.cam_pos);
 	shader->set_matrix("model", model_matrix);
 	shader->set_matrix("normal_matrix", model_normal_matrix);
 	for (int i = 0; i < meshes.size(); i++) {

@@ -68,6 +68,9 @@
     <ClCompile Include="ModelManager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="shadow_mapping.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shadow_mapping_light_shader.frag">
@@ -80,6 +83,30 @@
       <Filter>资源文件</Filter>
     </None>
     <None Include="shadow_mapping_obj_shader.vert">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="basic_light_shader.frag">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="basic_light_shader.vert">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="basic_obj_shader.frag">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="basic_obj_shader.vert">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="shadow_mapping_depth_shader.vert">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="shadow_mapping_depth_shader.frag">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="shadow_mapping_screen_shader.vert">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="shadow_mapping_screen_shader.frag">
       <Filter>资源文件</Filter>
     </None>
   </ItemGroup>
