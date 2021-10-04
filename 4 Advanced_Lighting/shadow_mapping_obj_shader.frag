@@ -48,14 +48,14 @@ uniform sampler2D shadowmap;
 
 out vec4 FragColor;
 
-float calc_shadow(vec4 lighting_position,vec3 dir_light,vec3 normal){
+float calc_shadow(vec4 lighting_position,vec3 light_dir,vec3 normal){
 	vec3 lighting_pos=lighting_position.xyz/lighting_position.w;
 	lighting_pos=(lighting_pos+1.0)*0.5;
 //	float real_depth=texture(shadowmap,vec2(lighting_pos.x,lighting_pos.y)).r;
 //	float diff=lighting_pos.z-real_depth;
 //	//return lighting_pos.z>real_depth?1.0:0.0;
 //
-//	//float delta=max(0.002*(1.0-dot(dir_light,normal)),0.001);
+//	//float delta=max(0.002*(1.0-dot(light_dir,normal)),0.001);
 //	float delta=0.001;
 //	return diff>delta?1.0:0.0;
 
