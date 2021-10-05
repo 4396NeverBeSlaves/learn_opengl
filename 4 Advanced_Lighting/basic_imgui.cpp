@@ -9,6 +9,9 @@
 #include<assimp/Importer.hpp>
 #include<assimp/scene.h>
 #include<assimp/postprocess.h>
+#include<imgui.h>
+#include<imgui_impl_glfw.h>
+#include<imgui_impl_opengl3.h>
 #include"Camera.h"
 #include"Shader.h"
 #include"Light.h"
@@ -47,19 +50,20 @@ void framebuf_size_callback(GLFWwindow* w, int width, int height) {
 	cout << "resizing window: w:" << width << " h: " << height << endl << endl;
 }
 
+void cursor_callback(GLFWwindow* window, double xpos, double ypos) {
+	cam.look(xpos, ypos);
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+	//cout << "x:" << xoffset << " y:" << yoffset << endl;
+	cam.zoom(xoffset, yoffset);
+}
+
 float tranparency = 0.5;
 void key_callback(GLFWwindow* w, int key, int scannode, int action, int mods) {
 	float cam_speed = 20 * delta_time;
 	if (glfwGetKey(w, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 		glfwSetWindowShouldClose(w, true);
-	}
-	if (glfwGetKey(w, GLFW_KEY_UP) == GLFW_PRESS) {
-		if (tranparency < 1.0)
-			tranparency += 0.01;
-	}
-	if (glfwGetKey(w, GLFW_KEY_DOWN) == GLFW_PRESS) {
-		if (tranparency > 0.1)
-			tranparency -= 0.01;
 	}
 	if (glfwGetKey(w, GLFW_KEY_W) == GLFW_PRESS) {
 		cam.move(Move_direction::FORWARD, delta_time);
@@ -72,16 +76,18 @@ void key_callback(GLFWwindow* w, int key, int scannode, int action, int mods) {
 	}
 	if (glfwGetKey(w, GLFW_KEY_D) == GLFW_PRESS) {
 		cam.move(Move_direction::RIGHT, delta_time);
+	}	
+	if (glfwGetKey(w, GLFW_KEY_LEFT_ALT) == GLFW_PRESS) {
+		int cursor_status=glfwGetInputMode(w,GLFW_CURSOR);
+		if (cursor_status == GLFW_CURSOR_DISABLED) {
+			glfwSetInputMode(w, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			glfwSetCursorPosCallback(w, NULL);
+		}
+		if (cursor_status == GLFW_CURSOR_NORMAL) {
+			glfwSetInputMode(w, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+			glfwSetCursorPosCallback(w, cursor_callback);
+		}
 	}
-}
-
-void cursor_callback(GLFWwindow* window, double xpos, double ypos) {
-	cam.look(xpos, ypos);
-}
-
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
-	//cout << "x:" << xoffset << " y:" << yoffset << endl;
-	cam.zoom(xoffset, yoffset);
 }
 
 void init() {
@@ -92,6 +98,7 @@ void init() {
 }
 
 int main() {
+	
 	init();
 	GLFWwindow* w = glfwCreateWindow(WIDTH, HEIGHT, "Lighting.", NULL, NULL);
 	if (!w) {
@@ -112,6 +119,15 @@ int main() {
 	glfwSetKeyCallback(w, key_callback);
 	glfwSetScrollCallback(w, scroll_callback);
 	glfwSetCursorPosCallback(w, cursor_callback);
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	(void)io;
+	ImGui::StyleColorsDark();
+
+	ImGui_ImplGlfw_InitForOpenGL(w,true);
+	ImGui_ImplOpenGL3_Init("#version 330");
 
 	float time1 = glfwGetTime();
 
@@ -141,7 +157,32 @@ int main() {
 	float one_second = 0;
 	int frame = 0;
 
+	bool show_demo_window = false;
+	bool show_my_window = true;
+	vec3 background_color = vec3(0.2, 0.2, 0.2);
 	while (!glfwWindowShouldClose(w)) {
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+		if(show_my_window)
+		{
+			ImGui::Begin("test bg color");
+			ImGui::Text("here can set bg color");
+			ImGui::SliderFloat3("bg color slider:", value_ptr(background_color),0.0,1.0);
+			bool open_status = LightManager::lights[1]->get_open_status();
+			ImGui::Checkbox("Open status:",&open_status);
+			LightManager::lights[1]->set_open_status(open_status);
+			ImGui::SameLine();
+			ImGui::SliderFloat3("light box color slider:", value_ptr(LightManager::lights[1]->color),0.0,1.0);
+			ImGui::Checkbox("demo window", &show_demo_window);
+			ImGui::End();
+		}
+
+		if (show_demo_window) {
+			ImGui::ShowDemoWindow(&show_demo_window);
+		}
+		ImGui::Render();
+
 		delta_time = get_delta_time();
 		one_second += delta_time;
 		frame++;
@@ -153,10 +194,11 @@ int main() {
 			frame = 0;
 		}
 
-		glClearColor(0.2, 0.2, 0.2, 1);
+		glClearColor(background_color.r, background_color.g, background_color.b, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
 
-		LightManager::lights[1]->set_open_status(false);
+		LightManager::lights[2]->set_open_status(false);
 
 		LightManager::draw();
 		LightManager::update_lighting_info_in_obj_shader(objshader);
@@ -170,7 +212,7 @@ int main() {
 		ModelManger::models[3]->translate(vec3(-1, 0, 3));
 		ModelManger::draw();
 
-
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		glfwSwapBuffers(w);
 		glfwPollEvents();
 	}
@@ -181,6 +223,9 @@ int main() {
 	delete lightingshader;
 	LightManager::destory_all_lights();
 	ModelManger::destroy_all_models();
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
 	glfwTerminate();
 	return 0;
 }
