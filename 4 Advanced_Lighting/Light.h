@@ -24,14 +24,14 @@ enum class LightType {
 
 class Light {
 public:
-	Light(Shader* light_shader, const string& lightname, vec3 lightcolor, LightType ltype) :shader(light_shader),name(lightname), color(lightcolor), opened(true),type(ltype) {};
+	Light(Shader* light_shader, const string& lightname, vec3 lightcolor, LightType ltype);
 	virtual void set_lighting_to_obj_shader(Shader* obj_shader) = 0;
 	virtual void draw() = 0;
-	void open();
-	void close();
+	bool get_open_status();
+	void set_open_status(bool open_status);
 	Shader* shader;
-	string name;
 	vec3 color;
+	string name;
 	const LightType type;
 protected:
 	bool opened;

@@ -26,7 +26,7 @@ public:
 	void draw();
 	void translate(const vec3& v);
 	void rotate(float rad, const vec3& v);
-	void scale();
+	void scale(const vec3& v);
 
 	Shader* shader;
 	string directory;
@@ -38,5 +38,4 @@ private:
 
 	vector<Mesh*> meshes;
 	mat4 model_matrix;
-	mat4 model_normal_matrix;
 };

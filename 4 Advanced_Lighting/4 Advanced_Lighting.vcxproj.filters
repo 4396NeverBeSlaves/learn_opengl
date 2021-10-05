@@ -13,6 +13,15 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="资源文件\basic">
+      <UniqueIdentifier>{02919a4e-f5cb-4876-8b1b-94b7e92ff04e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="资源文件\shadow_mapping">
+      <UniqueIdentifier>{f124b36d-cd04-4fda-be99-bc4fa52ecaf7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="资源文件\basic_imgui">
+      <UniqueIdentifier>{770d9c5f-3e8b-4da1-9e11-22c594522ea4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
@@ -71,43 +80,58 @@
     <ClCompile Include="shadow_mapping.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="basic_imgui.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shadow_mapping_light_shader.frag">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="shadow_mapping_light_shader.vert">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="shadow_mapping_obj_shader.frag">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="shadow_mapping_obj_shader.vert">
-      <Filter>资源文件</Filter>
-    </None>
     <None Include="basic_light_shader.frag">
-      <Filter>资源文件</Filter>
+      <Filter>资源文件\basic</Filter>
     </None>
     <None Include="basic_light_shader.vert">
-      <Filter>资源文件</Filter>
+      <Filter>资源文件\basic</Filter>
     </None>
     <None Include="basic_obj_shader.frag">
-      <Filter>资源文件</Filter>
+      <Filter>资源文件\basic</Filter>
     </None>
     <None Include="basic_obj_shader.vert">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="shadow_mapping_depth_shader.vert">
-      <Filter>资源文件</Filter>
+      <Filter>资源文件\basic</Filter>
     </None>
     <None Include="shadow_mapping_depth_shader.frag">
-      <Filter>资源文件</Filter>
+      <Filter>资源文件\shadow_mapping</Filter>
     </None>
-    <None Include="shadow_mapping_screen_shader.vert">
-      <Filter>资源文件</Filter>
+    <None Include="shadow_mapping_depth_shader.vert">
+      <Filter>资源文件\shadow_mapping</Filter>
+    </None>
+    <None Include="shadow_mapping_light_shader.frag">
+      <Filter>资源文件\shadow_mapping</Filter>
+    </None>
+    <None Include="shadow_mapping_light_shader.vert">
+      <Filter>资源文件\shadow_mapping</Filter>
+    </None>
+    <None Include="shadow_mapping_obj_shader.frag">
+      <Filter>资源文件\shadow_mapping</Filter>
+    </None>
+    <None Include="shadow_mapping_obj_shader.vert">
+      <Filter>资源文件\shadow_mapping</Filter>
     </None>
     <None Include="shadow_mapping_screen_shader.frag">
-      <Filter>资源文件</Filter>
+      <Filter>资源文件\shadow_mapping</Filter>
+    </None>
+    <None Include="shadow_mapping_screen_shader.vert">
+      <Filter>资源文件\shadow_mapping</Filter>
+    </None>
+    <None Include="basic_imgui_light_shader.frag">
+      <Filter>资源文件\basic_imgui</Filter>
+    </None>
+    <None Include="basic_imgui_light_shader.vert">
+      <Filter>资源文件\basic_imgui</Filter>
+    </None>
+    <None Include="basic_imgui_obj_shader.frag">
+      <Filter>资源文件\basic_imgui</Filter>
+    </None>
+    <None Include="basic_imgui_obj_shader.vert">
+      <Filter>资源文件\basic_imgui</Filter>
     </None>
   </ItemGroup>
 </Project>

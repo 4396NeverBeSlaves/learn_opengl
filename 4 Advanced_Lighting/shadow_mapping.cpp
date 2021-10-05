@@ -16,6 +16,8 @@
 #include"Model.h"
 #include"ModelManager.h"
 
+
+namespace shadowmap01{
 vector<Texture> textures;
 
 using namespace std;
@@ -132,12 +134,12 @@ int main() {
 	vec3 light_coef(1.0, 0.007, 0.00028);
 	Model* light_box = new Model(R"(C:\Users\X\Desktop\box.obj)", lightingshader);
 
-	LightManager::create_direction_light(lightingshader, "dir_light", vec3(1.0, 1.0, 1.0), vec3(-0.5, -0.5, -0.8));
-	//LightManager::create_point_light(light_box, "point_lights[0]", vec3(1.0, 1.0, 1.0), vec3(-5, 11, -6), light_coef);
-	//LightManager::create_point_light(light_box, "point_lights[1]", vec3(0.0, 1.0, 0.0), vec3(6.6, 13.3, 2.5), light_coef);
-	//LightManager::create_point_light(light_box, "point_lights[2]", vec3(0.0, 0.0, 1.0), vec3(0.0, 3.0, -10.0), light_coef);
-	//LightManager::create_point_light(light_box, "point_lights[3]", vec3(1.0, 0.0, 0.0), vec3(-3, 2.6, 6.5), light_coef);
-	//LightManager::create_spot_light(light_box, "spot_light", vec3(1.0, 1.0, 1.0), vec3(2.0, 0.6, 3.2), light_coef, vec3(0.0, 0.0, -1.0), 15.0, 17.0);
+	LightManager::create_direction_light(lightingshader, vec3(1.0, 1.0, 1.0), vec3(-0.5, -0.5, -0.8));
+	//LightManager::create_point_light(light_box, vec3(1.0, 1.0, 1.0), vec3(-5, 11, -6), light_coef);
+	//LightManager::create_point_light(light_box, vec3(0.0, 1.0, 0.0), vec3(6.6, 13.3, 2.5), light_coef);
+	//LightManager::create_point_light(light_box, vec3(0.0, 0.0, 1.0), vec3(0.0, 3.0, -10.0), light_coef);
+	//LightManager::create_point_light(light_box, vec3(1.0, 0.0, 0.0), vec3(-3, 2.6, 6.5), light_coef);
+	//LightManager::create_spot_light(light_box, vec3(1.0, 1.0, 1.0), vec3(2.0, 0.6, 3.2), light_coef, vec3(0.0, 0.0, -1.0), 15.0, 17.0);
 
 	float screen_box[] = {
 		0.0,0.0,0.0,0.0,
@@ -205,7 +207,6 @@ int main() {
 		depthshader->use();
 		depthshader->set_matrix("view", view);
 		depthshader->set_matrix("projection", proj);
-		depthshader->set_uniform_3fv("eye_pos", cam.cam_pos);
 		ModelManger::change_shader(depthshader);
 
 		ModelManger::models[1]->translate(vec3(-1.0, 0, -2.3));
@@ -262,4 +263,5 @@ int main() {
 	ModelManger::destroy_all_models();
 	glfwTerminate();
 	return 0;
+}
 }

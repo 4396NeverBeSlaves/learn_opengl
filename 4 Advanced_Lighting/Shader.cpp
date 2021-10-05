@@ -154,11 +154,18 @@ void Shader::set_uniform_4fv(const string& name, glm::vec4 v) {
 void Shader::set_uniform_1f(const string& name, float x) {
 	glUniform1f(glGetUniformLocation(id, name.c_str()), x);
 }
-void Shader::set_uniform_int(const string& name, int x, int y, int z) {
+void Shader::set_uniform_1int(const string& name, int x) {
+	glUniform1i(glGetUniformLocation(id, name.c_str()), x);
+}
+void Shader::set_uniform_3int(const string& name, int x, int y, int z) {
 	glUniform3f(glGetUniformLocation(id, name.c_str()), x, y, z);
 }
-void Shader::set_uniform_bool(const string& name, bool x, bool y, bool z) {
+void Shader::set_uniform_3bool(const string& name, bool x, bool y, bool z) {
 	glUniform3f(glGetUniformLocation(id, name.c_str()), x, y, z);
+}
+
+void Shader::set_uniform_3iv(const string& name, glm::ivec3 v) {
+	glUniform3iv(glGetUniformLocation(id, name.c_str()), 1, glm::value_ptr(v));
 }
 
 void Shader::set_texture(const string& name, unsigned int GL_TextureNo) {

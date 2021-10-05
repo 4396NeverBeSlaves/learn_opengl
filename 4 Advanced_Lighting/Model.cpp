@@ -1,6 +1,6 @@
 #include"Model.h"
 
-Model::Model(const string& path, Shader* s):shader(s),model_matrix(1.0),model_normal_matrix(1.0) {
+Model::Model(const string& path, Shader* s) :shader(s), model_matrix(1.0) {
 	load_model(path);
 }
 
@@ -16,40 +16,28 @@ void Model::draw() {
 	//shader->set_matrix("projection", perspective((float)radians(cam.fov), (float)WIDTH / HEIGHT, 0.1f, 100.0f));
 	//shader->set_uniform_3fv("eye_pos", cam.cam_pos);
 	shader->set_matrix("model", model_matrix);
-	shader->set_matrix("normal_matrix", model_normal_matrix);
 	for (int i = 0; i < meshes.size(); i++) {
 		meshes[i]->draw(shader);
 	}
-	model_matrix = mat4(1.0); 
-	model_normal_matrix = mat4(1.0);
+	model_matrix = mat4(1.0);
 }
 
 void Model::translate(const vec3& v) {
 	mat4 model_translate(1.0);
 	model_translate = glm::translate(model_translate, v);
-	mat4 normal_matrix_translate = { 1.0,0.0,0.0,-model_translate[3][0],
-							0.0,0.1,0.0,-model_translate[3][1],
-							0.0,0.0,1.0,-model_translate[3][2],
-							0.0,0.0,0.0,1.0
-	};
-	model_matrix =model_matrix* model_translate;
-	model_normal_matrix=model_normal_matrix* normal_matrix_translate;
+	model_matrix = model_matrix * model_translate;
 }
 
 void Model::rotate(float rad, const vec3& v) {
 	mat4 model_rotate(1.0);
-	model_rotate = glm::rotate(model_rotate,rad, v);
-	mat4 normal_matrix_rotate = { model_rotate[0][0],model_rotate[0][1],model_rotate[0][2],0.0,
-						model_rotate[1][0],model_rotate[1][1],model_rotate[1][2],0.0,
-						model_rotate[2][0],model_rotate[2][1],model_rotate[2][2],0.0,
-						0.0,0.0,0.0,1.0
-
-	};
-	model_matrix = model_matrix * normal_matrix_rotate;
-	model_normal_matrix = model_normal_matrix * normal_matrix_rotate;
+	model_rotate = glm::rotate(model_rotate, rad, v);
+	model_matrix = model_matrix * model_rotate;
 }
 
-void Model::scale() {
+void Model::scale(const vec3& v) {
+	mat4 model_scale(1.0);
+	model_scale = glm::scale(model_scale, v);
+	model_matrix = model_matrix * model_scale;
 }
 
 void Model::load_model(const string& path) {
@@ -60,13 +48,13 @@ void Model::load_model(const string& path) {
 		cout << "assimp scene error:" << importer.GetErrorString() << endl;
 		return;
 	}
-	directory = path.substr(0, path.find_last_of(R"('\')")+1);
+	directory = path.substr(0, path.find_last_of(R"('\')") + 1);
 
 	process_node(scene->mRootNode, scene);
 }
 
 void Model::process_node(aiNode* node, const aiScene* scene) {
-	
+
 	for (int i = 0; i < node->mNumMeshes; i++) {
 		//cout << "will push in meshes!" << endl;
 		//meshes.push_back(process_mesh(scene->mMeshes[node->mMeshes[i]], scene));
@@ -79,9 +67,9 @@ void Model::process_node(aiNode* node, const aiScene* scene) {
 }
 
 void Model::process_mesh(aiMesh* mesh, const aiScene* scene) {
-	vector<Vertex>* vertices=new vector<Vertex>;
+	vector<Vertex>* vertices = new vector<Vertex>;
 	vector<unsigned int>* indices = new vector<unsigned int>;
-	vector<unsigned int>* textureIndices=new vector<unsigned int>;
+	vector<unsigned int>* textureIndices = new vector<unsigned int>;
 
 	for (int i = 0; i < mesh->mNumVertices; i++) {
 		Vertex vert;
@@ -118,7 +106,7 @@ void Model::process_mesh(aiMesh* mesh, const aiScene* scene) {
 	//return Mesh(vertices, indices, textureIndices);
 }
 
-void Model::load_texture(aiMaterial* material, vector<unsigned int>* textureIndices,aiTextureType ai_tex_type, TextureType tex_type) {
+void Model::load_texture(aiMaterial* material, vector<unsigned int>* textureIndices, aiTextureType ai_tex_type, TextureType tex_type) {
 	aiString tex_name;
 	string tex_path;
 	float shiness;
@@ -136,10 +124,10 @@ void Model::load_texture(aiMaterial* material, vector<unsigned int>* textureIndi
 
 		material->Get(AI_MATKEY_SHININESS, shiness);
 		//cout << "shininess: " << shiness << endl;
-		if(j==textures.size())
+		if (j == textures.size())
 			textures.push_back(Texture(tex_path, shiness, tex_type, false));
 
 		textureIndices->push_back(j);
-		
+
 	}
 }

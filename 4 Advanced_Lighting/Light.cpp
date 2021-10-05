@@ -2,15 +2,22 @@
 
 //void Light::set_lighting_to_obj_shader(Shader& s) {}
 
-void Light::open() {
-	this->opened = true;
+Light::Light(Shader* light_shader, const string& lightname, vec3 lightcolor, LightType ltype) :shader(light_shader), name(lightname), color(lightcolor), opened(true), type(ltype) {
+
 }
 
-void Light::close() {
-	this->opened = false;
+bool Light::get_open_status() {
+	return this->opened;
+}
+
+void Light::set_open_status(bool open_status) {
+	this->opened = open_status;
 }
 
 void  DirectionLight::set_lighting_to_obj_shader(Shader* obj_shader) {
+	if (this->opened == false)
+		return;
+
 	obj_shader->use();
 	obj_shader->set_uniform_3fv(format("{:s}.color", this->name), color);
 	obj_shader->set_uniform_3fv(format("{:s}.direction", this->name), direction);
@@ -25,6 +32,9 @@ PointLight::~PointLight() {
 }
 
 void  PointLight::set_lighting_to_obj_shader(Shader* obj_shader) {
+	if (this->opened == false)
+		return;
+
 	obj_shader->use();
 	obj_shader->set_uniform_3fv(format("{:s}.color", this->name), color);
 	obj_shader->set_uniform_3fv(format("{:s}.position", this->name), position);
@@ -34,10 +44,14 @@ void  PointLight::set_lighting_to_obj_shader(Shader* obj_shader) {
 }
 
 void PointLight::draw() {
+	if (this->opened == false)
+		return;
 
 	float rotate_radians = (float)radians(30.0) * glfwGetTime();
 
 	light_model->shader->use();
+	light_model->shader->set_matrix("view", cam.get_view_matrix());
+	light_model->shader->set_matrix("projection", perspective((float)radians(cam.fov), (float)WIDTH / HEIGHT, 0.1f, 100.0f));
 	light_model->shader->set_uniform_3fv("light_color", this->color);
 
 	//lighting_model.rotate(lightingshader, rotate_radians, vec3(0, 1, 0));
@@ -57,6 +71,9 @@ SpotLight::~SpotLight() {
 }
 
 void SpotLight::set_lighting_to_obj_shader(Shader* obj_shader) {
+	if (this->opened == false)
+		return;
+
 	obj_shader->use();
 	obj_shader->set_uniform_3fv(format("{:s}.color", this->name), color);
 	obj_shader->set_uniform_3fv(format("{:s}.position", this->name), position);
@@ -69,6 +86,9 @@ void SpotLight::set_lighting_to_obj_shader(Shader* obj_shader) {
 }
 
 void SpotLight::draw() {
+	if (this->opened == false)
+		return;
+
 	float rotate_radians = (float)radians(30.0) * glfwGetTime();
 
 	light_model->shader->use();
@@ -76,6 +96,8 @@ void SpotLight::draw() {
 	this->color.y = sin(radians(glfwGetTime() * 10 + 120)) / 2 + 0.5;
 	this->color.z = sin(radians(glfwGetTime() * 10 + 240)) / 2 + 0.5;
 	light_model->shader->set_uniform_3fv("light_color", this->color);
+	light_model->shader->set_matrix("view", cam.get_view_matrix());
+	light_model->shader->set_matrix("projection", perspective((float)radians(cam.fov), (float)WIDTH / HEIGHT, 0.1f, 100.0f));
 
 	
 	light_model->translate(this->origin_position);

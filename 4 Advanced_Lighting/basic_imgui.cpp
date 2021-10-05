@@ -1,4 +1,4 @@
-﻿#include<iostream>
+#include<iostream>
 #include<format>
 #include<vector>
 #include<glad/glad.h>
@@ -16,7 +16,7 @@
 #include"Model.h"
 #include"ModelManager.h"
 
-namespace basic00{
+
 vector<Texture> textures;
 
 using namespace std;
@@ -115,13 +115,13 @@ int main() {
 
 	float time1 = glfwGetTime();
 
-	Shader* objshader=new Shader("basic_obj_shader.vert", "basic_obj_shader.frag");
-	Shader* lightingshader = new Shader("basic_light_shader.vert", "basic_light_shader.frag");
+	Shader* objshader = new Shader("basic_imgui_obj_shader.vert", "basic_imgui_obj_shader.frag");
+	Shader* lightingshader = new Shader("basic_imgui_light_shader.vert", "basic_imgui_light_shader.frag");
 
-	Model* plane=new Model(R"(C:\Users\X\Desktop\plane.obj)", objshader);
-	Model* box1=new Model(R"(C:\Users\X\Desktop\box_marble.obj)", objshader);
-	Model* box2=new Model(R"(C:\Users\X\Desktop\box_marble.obj)", objshader);
-	Model* box3=new Model(R"(C:\Users\X\Desktop\box_marble.obj)", objshader);
+	Model* plane = new Model(R"(C:\Users\X\Desktop\plane.obj)", objshader);
+	Model* box1 = new Model(R"(C:\Users\X\Desktop\box_marble.obj)", objshader);
+	Model* box2 = new Model(R"(C:\Users\X\Desktop\box_marble.obj)", objshader);
+	Model* box3 = new Model(R"(C:\Users\X\Desktop\box_marble.obj)", objshader);
 	ModelManger::add_model(plane);
 	ModelManger::add_model(box1);
 	ModelManger::add_model(box2);
@@ -131,7 +131,7 @@ int main() {
 	vec3 light_coef(1.0, 0.007, 0.00028);
 	Model* light_box = new Model(R"(C:\Users\X\Desktop\box.obj)", lightingshader);
 
-	//LightManager::create_direction_light(lightingshader, 0.3f*vec3(1.0, 1.0, 1.0), vec3(0.0, -0.7, -0.7));
+	LightManager::create_direction_light(lightingshader, 0.3f*vec3(1.0, 1.0, 1.0), vec3(0.0, -0.7, -0.7));
 	LightManager::create_point_light(light_box, vec3(1.0, 1.0, 1.0), vec3(-5, 11, -6), light_coef);
 	LightManager::create_point_light(light_box, vec3(0.0, 1.0, 0.0), vec3(6.6, 13.3, 2.5), light_coef);
 	LightManager::create_point_light(light_box, vec3(0.0, 0.0, 1.0), vec3(0.0, 3.0, -10.0), light_coef);
@@ -156,18 +156,19 @@ int main() {
 		glClearColor(0.2, 0.2, 0.2, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		LightManager::lights[1]->set_open_status(false);
+
 		LightManager::draw();
 		LightManager::update_lighting_info_in_obj_shader(objshader);
 
-		//objshader.use();
-		//objshader.set_uniform_1f("time", current_time);
+		objshader->use();
+		objshader->set_matrix("view", cam.get_view_matrix());
+		objshader->set_matrix("projection", perspective((float)radians(cam.fov), (float)WIDTH / HEIGHT, 0.1f, 100.0f));
+		objshader->set_uniform_3fv("eye_pos", cam.cam_pos);
 
 		ModelManger::models[2]->translate(vec3(2, 2, 2));
 		ModelManger::models[3]->translate(vec3(-1, 0, 3));
 		ModelManger::draw();
-
-		
-
 
 
 		glfwSwapBuffers(w);
@@ -182,5 +183,4 @@ int main() {
 	ModelManger::destroy_all_models();
 	glfwTerminate();
 	return 0;
-}
 }
