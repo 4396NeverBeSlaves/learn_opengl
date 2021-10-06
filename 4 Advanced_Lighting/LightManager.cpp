@@ -1,48 +1,56 @@
 #include"LightManager.h"
 
 vector<Light*> LightManager::lights;
+vector<int> LightManager::lights_idx_in_shader;
 
 void LightManager::create_direction_light(Shader* shader, vec3 lightcolor, vec3 lightdir) {
-	string lightname = format("dir_lights[{:d}]", LightManager::get_all_lights_num(LightType::DirectionLight));
+	int idx = LightManager::get_all_lights_num(LightType::DirectionLight);
+	lights_idx_in_shader.push_back(idx);
+	string lightname = format("DirectionLight {:d}", idx+1);
 	lights.push_back(new DirectionLight(shader,lightname, lightcolor, lightdir));
 }
 
 void LightManager::create_point_light(Model* lightmodel, vec3 lightcolor, vec3 lightpos, vec3 attenuation_coefs) {
-	string lightname = format("point_lights[{:d}]", LightManager::get_all_lights_num(LightType::PointLight));
+	int idx = LightManager::get_all_lights_num(LightType::PointLight);
+	lights_idx_in_shader.push_back(idx);
+	string lightname = format("PointLight {:d}",idx+1);
 	lights.push_back(new PointLight(lightmodel, lightname, lightcolor, lightpos, attenuation_coefs));
 }
 
 void LightManager::create_spot_light(Model* lightmodel, vec3 lightcolor, vec3 lightpos, vec3 attenuation_coefs, vec3 spotdir, float inner_range_angle, float outer_range_angle) {
-	string lightname = format("spot_lights[{:d}]", LightManager::get_all_lights_num(LightType::SpotLight));
+	int idx = LightManager::get_all_lights_num(LightType::SpotLight);
+	lights_idx_in_shader.push_back(idx);
+	string lightname = format("SpotLight {:d}", idx+1);
 	lights.push_back(new SpotLight(lightmodel, lightname, lightcolor, lightpos, attenuation_coefs, spotdir, inner_range_angle, outer_range_angle));
 }
 
-void LightManager::update_lights_name() {
+void LightManager::update_lights_idx_in_shader() {
 	int dir_num = 0, point_num = 0, spot_num = 0;
 
 	for (size_t i = 0; i < lights.size(); i++) {
 		if (lights[i]->get_open_status() == true) {
 			switch (lights[i]->type) {
 			case LightType::DirectionLight:
-				lights[i]->name = format("dir_lights[{:d}]", dir_num++);
+				lights_idx_in_shader[i]=dir_num++;
 				break;
 			case LightType::PointLight:
-				lights[i]->name = format("point_lights[{:d}]", point_num++);
+				lights_idx_in_shader[i]=point_num++;
 				break;
 			case LightType::SpotLight:
-				lights[i]->name = format("spot_lights[{:d}]", spot_num++);
+				lights_idx_in_shader[i]=spot_num++;
 				break;
 			default:
 				break;
 			}
+		}
+		else {
+			lights_idx_in_shader[i]=-1;
 		}
 	}
 	
 }
 
 void LightManager::draw() {
-	LightManager::update_lights_name();
-
 	for (int i = 0; i < lights.size(); i++) {
 		LightManager::lights[i]->draw();
 	}
@@ -55,8 +63,9 @@ void LightManager::update_lighting_info_in_obj_shader(Shader* obj_shader) {
 			LightManager::get_opened_lights_num(LightType::PointLight),
 			LightManager::get_opened_lights_num(LightType::SpotLight)));
 
+	LightManager::update_lights_idx_in_shader();
 	for (int i = 0; i < lights.size(); i++) {
-		LightManager::lights[i]->set_lighting_to_obj_shader(obj_shader);
+		LightManager::lights[i]->set_lighting_to_obj_shader(obj_shader,lights_idx_in_shader[i]);
 	}
 }
 

@@ -48,6 +48,9 @@
     <ClInclude Include="ModelManager.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="LightSettingUI.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Light.cpp">
@@ -81,6 +84,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="basic_imgui.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="LightSettingUI.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

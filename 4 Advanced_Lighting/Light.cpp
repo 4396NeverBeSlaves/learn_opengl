@@ -3,7 +3,7 @@
 //void Light::set_lighting_to_obj_shader(Shader& s) {}
 
 Light::Light(Shader* light_shader, const string& lightname, vec3 lightcolor, LightType ltype) :shader(light_shader), name(lightname), color(lightcolor), opened(true), type(ltype) {
-
+	
 }
 
 bool Light::get_open_status() {
@@ -14,13 +14,13 @@ void Light::set_open_status(bool open_status) {
 	this->opened = open_status;
 }
 
-void  DirectionLight::set_lighting_to_obj_shader(Shader* obj_shader) {
+void  DirectionLight::set_lighting_to_obj_shader(Shader* obj_shader, int idx) {
 	if (this->opened == false)
 		return;
 
 	obj_shader->use();
-	obj_shader->set_uniform_3fv(format("{:s}.color", this->name), color);
-	obj_shader->set_uniform_3fv(format("{:s}.direction", this->name), direction);
+	obj_shader->set_uniform_3fv(format("dir_lights[{:d}].color", idx), color);
+	obj_shader->set_uniform_3fv(format("dir_lights[{:d}].direction", idx), direction);
 }
 
 void DirectionLight::draw() {
@@ -31,16 +31,16 @@ PointLight::~PointLight() {
 	delete light_model;
 }
 
-void  PointLight::set_lighting_to_obj_shader(Shader* obj_shader) {
+void  PointLight::set_lighting_to_obj_shader(Shader* obj_shader, int idx) {
 	if (this->opened == false)
 		return;
 
 	obj_shader->use();
-	obj_shader->set_uniform_3fv(format("{:s}.color", this->name), color);
-	obj_shader->set_uniform_3fv(format("{:s}.position", this->name), position);
-	obj_shader->set_uniform_1f(format("{:s}.constant", this->name), _attenuation_coefs[0]);
-	obj_shader->set_uniform_1f(format("{:s}.linear", this->name), _attenuation_coefs[1]);
-	obj_shader->set_uniform_1f(format("{:s}.quadratic", this->name), _attenuation_coefs[2]);
+	obj_shader->set_uniform_3fv(format("point_lights[{:d}].color", idx), color);
+	obj_shader->set_uniform_3fv(format("point_lights[{:d}].position", idx), position);
+	obj_shader->set_uniform_1f(format("point_lights[{:d}].constant", idx), _attenuation_coefs[0]);
+	obj_shader->set_uniform_1f(format("point_lights[{:d}].linear", idx), _attenuation_coefs[1]);
+	obj_shader->set_uniform_1f(format("point_lights[{:d}].quadratic", idx), _attenuation_coefs[2]);
 }
 
 void PointLight::draw() {
@@ -70,19 +70,19 @@ SpotLight::~SpotLight() {
 	delete light_model;
 }
 
-void SpotLight::set_lighting_to_obj_shader(Shader* obj_shader) {
+void SpotLight::set_lighting_to_obj_shader(Shader* obj_shader, int idx) {
 	if (this->opened == false)
 		return;
 
 	obj_shader->use();
-	obj_shader->set_uniform_3fv(format("{:s}.color", this->name), color);
-	obj_shader->set_uniform_3fv(format("{:s}.position", this->name), position);
-	obj_shader->set_uniform_3fv(format("{:s}.spot_dir", this->name), spot_dir);
-	obj_shader->set_uniform_1f(format("{:s}.constant", this->name), _attenuation_coefs[0]);
-	obj_shader->set_uniform_1f(format("{:s}.linear", this->name), _attenuation_coefs[1]);
-	obj_shader->set_uniform_1f(format("{:s}.quadratic", this->name), _attenuation_coefs[2]);
-	obj_shader->set_uniform_1f(format("{:s}.inner_range_angle", this->name), _inner_range_angle);
-	obj_shader->set_uniform_1f(format("{:s}.outer_range_angle", this->name), _outer_range_angle);
+	obj_shader->set_uniform_3fv(format("spot_lights[{:d}].color", idx), color);
+	obj_shader->set_uniform_3fv(format("spot_lights[{:d}].position", idx), position);
+	obj_shader->set_uniform_3fv(format("spot_lights[{:d}].spot_dir", idx), spot_dir);
+	obj_shader->set_uniform_1f(format("spot_lights[{:d}].constant", idx), _attenuation_coefs[0]);
+	obj_shader->set_uniform_1f(format("spot_lights[{:d}].linear", idx), _attenuation_coefs[1]);
+	obj_shader->set_uniform_1f(format("spot_lights[{:d}].quadratic", idx), _attenuation_coefs[2]);
+	obj_shader->set_uniform_1f(format("spot_lights[{:d}].inner_range_angle", idx), _inner_range_angle);
+	obj_shader->set_uniform_1f(format("spot_lights[{:d}].outer_range_angle", idx), _outer_range_angle);
 }
 
 void SpotLight::draw() {

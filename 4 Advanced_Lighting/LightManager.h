@@ -12,7 +12,8 @@ public:
 	static const int get_opened_lights_num(LightType ltype);
 	static void destory_all_lights();
 	static vector<Light*> lights;
+	static vector<int> lights_idx_in_shader;
 private:
 	LightManager() {};
-	static void update_lights_name();
+	static void update_lights_idx_in_shader();
 };

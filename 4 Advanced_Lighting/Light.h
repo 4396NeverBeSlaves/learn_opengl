@@ -25,7 +25,7 @@ enum class LightType {
 class Light {
 public:
 	Light(Shader* light_shader, const string& lightname, vec3 lightcolor, LightType ltype);
-	virtual void set_lighting_to_obj_shader(Shader* obj_shader) = 0;
+	virtual void set_lighting_to_obj_shader(Shader* obj_shader,int idx) = 0;
 	virtual void draw() = 0;
 	bool get_open_status();
 	void set_open_status(bool open_status);
@@ -40,7 +40,7 @@ protected:
 class DirectionLight :public Light {
 public:
 	DirectionLight(Shader* light_shader, const string& lightname, vec3 lightcolor, vec3 lightdir) :Light(light_shader,lightname, lightcolor,LightType::DirectionLight), direction(lightdir) {};
-	void set_lighting_to_obj_shader(Shader* obj_shader);
+	void set_lighting_to_obj_shader(Shader* obj_shader, int idx);
 	void draw();
 	vec3 direction;
 };
@@ -51,12 +51,12 @@ public:
 		light_model(lightmodel), position(lightpos), origin_position(lightpos), _attenuation_coefs(attenuation_coefs) {
 	};
 	~PointLight();
-	void set_lighting_to_obj_shader(Shader* obj_shader);
+	void set_lighting_to_obj_shader(Shader* obj_shader, int idx);
 	void draw();
 
 	Model* light_model;
 	vec3 position;
-	const vec3 origin_position;
+	vec3 origin_position;
 	vec3 _attenuation_coefs;
 };
 
@@ -66,14 +66,14 @@ public:
 		light_model(lightmodel), position(lightpos), origin_position(lightpos), _attenuation_coefs(attenuation_coefs), spot_dir(spotdir), origin_spot_dir(spotdir), _inner_range_angle(inner_range_angle), _outer_range_angle(outer_range_angle) {
 	};
 	~SpotLight();
-	void set_lighting_to_obj_shader(Shader* obj_shader);
+	void set_lighting_to_obj_shader(Shader* obj_shader, int idx);
 	void draw();
 
 	Model* light_model;
 	vec3 position;
-	const vec3 origin_position;
+	vec3 origin_position;
 	vec3 spot_dir;
-	const vec3 origin_spot_dir;
+	vec3 origin_spot_dir;
 	vec3 _attenuation_coefs;
 	float _inner_range_angle;
 	float _outer_range_angle;

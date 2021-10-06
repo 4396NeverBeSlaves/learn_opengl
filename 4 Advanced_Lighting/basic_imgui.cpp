@@ -18,12 +18,15 @@
 #include"LightManager.h"
 #include"Model.h"
 #include"ModelManager.h"
-
-
-vector<Texture> textures;
+#include"LightSettingUI.h"
 
 using namespace std;
 using namespace glm;
+
+vector<Texture> textures;
+vec3 background_color=vec3(0.2, 0.2, 0.2);
+Shader* lightingshader;
+Model* light_box;
 
 const int WIDTH = 900;
 const int HEIGHT = 900;
@@ -111,6 +114,7 @@ int main() {
 		return -1;
 	}
 
+	glfwSwapInterval(1);
 	glViewport(0, 0, WIDTH, HEIGHT);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glEnable(GL_DEPTH_TEST);
@@ -131,8 +135,10 @@ int main() {
 
 	float time1 = glfwGetTime();
 
+	lightingshader = new Shader("basic_imgui_light_shader.vert", "basic_imgui_light_shader.frag");
+	light_box = new Model(R"(C:\Users\X\Desktop\box.obj)", lightingshader);
+
 	Shader* objshader = new Shader("basic_imgui_obj_shader.vert", "basic_imgui_obj_shader.frag");
-	Shader* lightingshader = new Shader("basic_imgui_light_shader.vert", "basic_imgui_light_shader.frag");
 
 	Model* plane = new Model(R"(C:\Users\X\Desktop\plane.obj)", objshader);
 	Model* box1 = new Model(R"(C:\Users\X\Desktop\box_marble.obj)", objshader);
@@ -143,10 +149,8 @@ int main() {
 	ModelManger::add_model(box2);
 	ModelManger::add_model(box3);
 
-	vec3 light_color(1.0, 1.0, 1.0);
 	vec3 light_coef(1.0, 0.007, 0.00028);
-	Model* light_box = new Model(R"(C:\Users\X\Desktop\box.obj)", lightingshader);
-
+	
 	LightManager::create_direction_light(lightingshader, 0.3f*vec3(1.0, 1.0, 1.0), vec3(0.0, -0.7, -0.7));
 	LightManager::create_point_light(light_box, vec3(1.0, 1.0, 1.0), vec3(-5, 11, -6), light_coef);
 	LightManager::create_point_light(light_box, vec3(0.0, 1.0, 0.0), vec3(6.6, 13.3, 2.5), light_coef);
@@ -157,32 +161,12 @@ int main() {
 	float one_second = 0;
 	int frame = 0;
 
-	bool show_demo_window = false;
-	bool show_my_window = true;
-	vec3 background_color = vec3(0.2, 0.2, 0.2);
 	while (!glfwWindowShouldClose(w)) {
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-		if(show_my_window)
-		{
-			ImGui::Begin("test bg color");
-			ImGui::Text("here can set bg color");
-			ImGui::SliderFloat3("bg color slider:", value_ptr(background_color),0.0,1.0);
-			bool open_status = LightManager::lights[1]->get_open_status();
-			ImGui::Checkbox("Open status:",&open_status);
-			LightManager::lights[1]->set_open_status(open_status);
-			ImGui::SameLine();
-			ImGui::SliderFloat3("light box color slider:", value_ptr(LightManager::lights[1]->color),0.0,1.0);
-			ImGui::Checkbox("demo window", &show_demo_window);
-			ImGui::End();
-		}
-
-		if (show_demo_window) {
-			ImGui::ShowDemoWindow(&show_demo_window);
-		}
+		LightSettingUI::display();
 		ImGui::Render();
-
 		delta_time = get_delta_time();
 		one_second += delta_time;
 		frame++;
@@ -196,9 +180,6 @@ int main() {
 
 		glClearColor(background_color.r, background_color.g, background_color.b, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
-
-		LightManager::lights[2]->set_open_status(false);
 
 		LightManager::draw();
 		LightManager::update_lighting_info_in_obj_shader(objshader);
