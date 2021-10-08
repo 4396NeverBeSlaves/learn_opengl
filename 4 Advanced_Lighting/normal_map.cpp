@@ -20,18 +20,18 @@
 #include"ModelManager.h"
 #include"LightSettingUI.h"
 
-namespace basic_imgui{
+//namespace normal_map_{
 using namespace std;
 using namespace glm;
 
 vector<Texture> textures;
-vec3 background_color=vec3(0.2, 0.2, 0.2);
+vec3 background_color = vec3(0.2, 0.2, 0.2);
 Shader* lightingshader;
 Model* light_box;
 
 const int WIDTH = 900;
 const int HEIGHT = 900;
-vec3 cam_pos(0, 2, 8);
+vec3 cam_pos(0, 3, 4);
 vec3 cam_dir(0, 0, -1);
 vec3 cam_up(0, 1, 0);
 Camera cam(cam_pos, cam_dir, cam_up);
@@ -80,9 +80,9 @@ void key_callback(GLFWwindow* w, int key, int scannode, int action, int mods) {
 	}
 	if (glfwGetKey(w, GLFW_KEY_D) == GLFW_PRESS) {
 		cam.move(Move_direction::RIGHT, delta_time);
-	}	
+	}
 	if (glfwGetKey(w, GLFW_KEY_LEFT_ALT) == GLFW_PRESS) {
-		int cursor_status=glfwGetInputMode(w,GLFW_CURSOR);
+		int cursor_status = glfwGetInputMode(w, GLFW_CURSOR);
 		if (cursor_status == GLFW_CURSOR_DISABLED) {
 			glfwSetInputMode(w, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 			glfwSetCursorPosCallback(w, NULL);
@@ -102,7 +102,7 @@ void init() {
 }
 
 int main() {
-	
+
 	init();
 	GLFWwindow* w = glfwCreateWindow(WIDTH, HEIGHT, "Lighting.", NULL, NULL);
 	if (!w) {
@@ -131,42 +131,54 @@ int main() {
 	(void)io;
 	ImGui::StyleColorsDark();
 
-	ImGui_ImplGlfw_InitForOpenGL(w,true);
+	ImGui_ImplGlfw_InitForOpenGL(w, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
 
 	float time1 = glfwGetTime();
 
-	lightingshader = new Shader(R"(..\4 Advanced_Lighting\basic_imgui_light_shader.vert)",R"(..\4 Advanced_Lighting\basic_imgui_light_shader.frag)");
+	lightingshader = new Shader(R"(..\4 Advanced_Lighting\normal_map_light_shader.vert)",R"(..\4 Advanced_Lighting\normal_map_light_shader.frag)");
 	light_box = new Model(R"(..\Assets\box.obj)", lightingshader);
 
-	Shader* objshader = new Shader(R"(..\4 Advanced_Lighting\basic_imgui_obj_shader.vert)", R"(..\4 Advanced_Lighting\basic_imgui_obj_shader.frag)");
+	Shader* objshader = new Shader(R"(..\4 Advanced_Lighting\normal_map_obj_shader.vert)", R"(..\4 Advanced_Lighting\normal_map_obj_shader.frag)");
+
+	Model* wall = new Model(R"(..\Assets\wall.obj)", objshader);
+	//Texture wall_normal(R"(..\Assets\normal_mapping_normal_map.png)",0,TextureType::Diffuse,false);
+
+	ModelManger::add_model(wall);
 
 	Model* plane = new Model(R"(..\Assets\plane.obj)", objshader);
 	Model* box1 = new Model(R"(..\Assets\box_marble.obj)", objshader);
-	Model* box2 = new Model(R"(..\Assets\box_marble.obj)", objshader);
-	Model* box3 = new Model(R"(..\Assets\box_marble.obj)", objshader);
-	ModelManger::add_model(plane);
-	ModelManger::add_model(box1);
-	ModelManger::add_model(box2);
-	ModelManger::add_model(box3);
+	//Model* box2 = new Model(R"(..\Assets\box_marble.obj)", objshader);
+	//Model* box3 = new Model(R"(..\Assets\box_marble.obj)", objshader);
+	//ModelManger::add_model(plane);
+	//ModelManger::add_model(box1);
+	//ModelManger::add_model(box2);
+	//ModelManger::add_model(box3);
 
 	vec3 light_coef(1.0, 0.007, 0.00028);
-	
-	LightManager::create_direction_light(lightingshader, 0.3f*vec3(1.0, 1.0, 1.0), vec3(0.0, -0.7, -0.7));
-	LightManager::create_point_light(light_box, vec3(1.0, 1.0, 1.0), vec3(-5, 11, -6), light_coef);
-	LightManager::create_point_light(light_box, vec3(0.0, 1.0, 0.0), vec3(6.6, 13.3, 2.5), light_coef);
-	LightManager::create_point_light(light_box, vec3(0.0, 0.0, 1.0), vec3(0.0, 3.0, -10.0), light_coef);
-	LightManager::create_point_light(light_box, vec3(1.0, 0.0, 0.0), vec3(-3, 2.6, 6.5), light_coef);
-	LightManager::create_spot_light(light_box, vec3(1.0, 1.0, 1.0), vec3(2.0, 0.6, 3.2), light_coef, vec3(0.0, 0.0, -1.0), 15.0, 17.0);
+
+	LightManager::create_point_light(light_box, vec3(1.0, 1.0, 1.0), vec3(0, 0.5, 2), light_coef);
+	//LightManager::create_direction_light(lightingshader, vec3(1.0, 1.0, 1.0), vec3(0.0, -0.7, -0.7));
 
 	float one_second = 0;
 	int frame = 0;
-
+	vec3 pos(0);
+	float wall_angle=0;
 	while (!glfwWindowShouldClose(w)) {
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 		LightSettingUI::display();
+		ImGui::Begin("wall");
+		ImGui::Text("pos");
+		ImGui::SliderFloat("x",value_ptr(pos),-10.0,10.0);
+		ImGui::SliderFloat("y", value_ptr(pos)+1, -10.0, 10.0);
+		ImGui::SliderFloat("z", value_ptr(pos) + 2, -10.0, 10.0);
+		ImGui::Text("rotate");
+		ImGui::SliderFloat("angle",&wall_angle,-180.0,180.0);
+		wall->translate(pos);
+		wall->rotate(radians(wall_angle),vec3(1,0,0));
+		ImGui::End();
 		ImGui::Render();
 		delta_time = get_delta_time();
 		one_second += delta_time;
@@ -190,8 +202,11 @@ int main() {
 		objshader->set_matrix("projection", perspective((float)radians(cam.fov), (float)WIDTH / HEIGHT, 0.1f, 100.0f));
 		objshader->set_uniform_3fv("eye_pos", cam.cam_pos);
 
-		ModelManger::models[2]->translate(vec3(2, 2, 2));
-		ModelManger::models[3]->translate(vec3(-1, 0, 3));
+		//glActiveTexture(GL_TEXTURE2);
+		//glBindTexture(GL_TEXTURE_2D,wall_normal.get_texture_obj());
+		//objshader->set_texture("material.normal_map",2);
+
+
 		ModelManger::draw();
 
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -211,4 +226,4 @@ int main() {
 	glfwTerminate();
 	return 0;
 }
-}
+//}

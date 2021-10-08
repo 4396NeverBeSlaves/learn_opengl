@@ -22,6 +22,9 @@
     <Filter Include="资源文件\basic_imgui">
       <UniqueIdentifier>{770d9c5f-3e8b-4da1-9e11-22c594522ea4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="资源文件\normal_map">
+      <UniqueIdentifier>{666a08bc-b206-499c-a4c2-95e1b368beb7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
@@ -89,6 +92,12 @@
     <ClCompile Include="LightSettingUI.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="shadow_mapping_imgui.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="normal_map.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="basic_light_shader.frag">
@@ -138,6 +147,18 @@
     </None>
     <None Include="basic_imgui_obj_shader.vert">
       <Filter>资源文件\basic_imgui</Filter>
+    </None>
+    <None Include="normal_map_light_shader.frag">
+      <Filter>资源文件\normal_map</Filter>
+    </None>
+    <None Include="normal_map_light_shader.vert">
+      <Filter>资源文件\normal_map</Filter>
+    </None>
+    <None Include="normal_map_obj_shader.frag">
+      <Filter>资源文件\normal_map</Filter>
+    </None>
+    <None Include="normal_map_obj_shader.vert">
+      <Filter>资源文件\normal_map</Filter>
     </None>
   </ItemGroup>
 </Project>

@@ -34,7 +34,7 @@ void Mesh::draw(Shader* s) {
 	for (int i = 0; i < textureIndices->size(); i++) {
 		glActiveTexture(GL_TEXTURE0 + i);
 		glBindTexture(GL_TEXTURE_2D,textures[(*textureIndices)[i]].get_texture_obj());
-
+		
 		if (textures[(*textureIndices)[i]].type == TextureType::Diffuse) {
 			s->set_texture(format("material.texture_diffuse{:d}", diffuse_counter),i);
 			diffuse_counter++;
@@ -53,6 +53,7 @@ void Mesh::draw(Shader* s) {
 		glActiveTexture(GL_TEXTURE0 + i);
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
+	s->set_uniform_1f("material.shininess", 0);
 	glBindVertexArray(0);
 }
 

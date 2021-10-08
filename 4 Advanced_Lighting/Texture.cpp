@@ -4,7 +4,7 @@ Texture::Texture(const string& path, float shiness, TextureType tp, bool vertica
 	stbi_set_flip_vertically_on_load(vertical_flip);
 
 	unsigned char* tex_file = stbi_load(path.c_str(), &width, &height, &nchannels, 0);
-	if (!tex_file)
+ 	if (!tex_file)
 		cerr << path << " not found!" << endl;
 
 	glGenTextures(1, &texture_id);

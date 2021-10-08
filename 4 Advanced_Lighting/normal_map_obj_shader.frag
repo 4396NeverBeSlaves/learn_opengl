@@ -3,6 +3,7 @@
 struct Material{
 	sampler2D texture_diffuse0;
 	sampler2D texture_specular0;
+	//sampler2D normal_map;
 	sampler2D emission;
 	float shininess;
 };
@@ -34,7 +35,6 @@ struct SpotLight{
 in vec3 normal;
 in vec3 frag_world_pos;
 in vec2 texcoord;
-in vec4 lighting_position;
 
 #define MAX_DIRECTION_LIGHTS_NUM 16
 #define MAX_POINT_LIGHTS_NUM 16
@@ -48,62 +48,36 @@ uniform DirectionLight dir_lights[MAX_DIRECTION_LIGHTS_NUM];
 uniform PointLight point_lights[MAX_POINT_LIGHTS_NUM];
 uniform SpotLight spot_lights[MAX_SPOT_LIGHTS_NUM];
 
-uniform sampler2D shadowmap;
-
 out vec4 FragColor;
 
-float calc_shadow(vec4 lighting_position,vec3 light_dir,vec3 normal){
-	vec3 lighting_pos=lighting_position.xyz/lighting_position.w;
-	lighting_pos=(lighting_pos+1.0)*0.5;
-//	float real_depth=texture(shadowmap,vec2(lighting_pos.x,lighting_pos.y)).r;
-//	float diff=lighting_pos.z-real_depth;
-//	//return lighting_pos.z>real_depth?1.0:0.0;
-//
-//	//float delta=max(0.002*(1.0-dot(light_dir,normal)),0.001);
-//	float delta=0.001;
-//	return diff>delta?1.0:0.0;
-
-	vec2 offset=1.0/textureSize(shadowmap,0);
-	float shadow=0.0;
-	float bias=0.001;
-
-	for(int y=-1;y<=1;y++){
-		for(int x=-1;x<=1;x++){
-			float single_depth=texture(shadowmap,vec2(lighting_pos.x,lighting_pos.y)+vec2(x*offset.x,y*offset.y)).r;
-			shadow+= single_depth+bias<lighting_pos.z?1.0:0.0;
-		}
-	}
-
-	shadow=shadow/9.0;
-	return shadow;
-}
-
 vec3 cal_direction_light(DirectionLight light){
-	
 
-	vec3 ambient=vec3(texture2D(material.texture_diffuse0,texcoord))*light.color*0.5f;
+	vec3 ambient=vec3(texture2D(material.texture_diffuse0,texcoord))*light.color*0.2f;
 	vec3 direction=normalize(-light.direction);
 	float diffuse_coef=max(dot(direction,normalize(normal)),0);
 	vec3 diffuse=diffuse_coef*vec3(texture2D(material.texture_diffuse0,texcoord))*light.color;
+	diffuse=vec3(0.0);
 
 	vec3 view_vec=normalize(eye_pos-frag_world_pos);
 	vec3 half_vec=normalize(direction+view_vec);
 	vec3 specular;
 	if(material.shininess>=1.0){
 		float specular_coef=pow(max(dot(half_vec,normalize(normal)),0),material.shininess);
-		specular=specular_coef *vec3(texture2D(material.texture_specular0,texcoord))*light.color;
+		specular=specular_coef *vec3(texture2D(material.texture_diffuse0,texcoord))*light.color;
+
 	}else{
 		specular=vec3(0.0);
 	}
 
-	float shadow=calc_shadow(lighting_position,direction,normal);
-
-	return ambient+(1.0-shadow)*(diffuse+specular);
+	return ambient+diffuse+specular;
 }
 
 vec3 cal_point_light(PointLight light){
+	vec3 normal= vec3(texture(material.texture_specular0,texcoord));
+	normal=(normal*2)-1.0;
+
 	vec3 ambient=vec3(texture2D(material.texture_diffuse0,texcoord))*light.color*0.2f;
-	
+
 	vec3 direction=normalize(light.position-frag_world_pos);
 	float distance_=length(light.position.xyz-frag_world_pos);
 	float attenuation=1.0/(light.constant+light.linear*distance_+light.quadratic*distance_*distance_);
@@ -111,12 +85,14 @@ vec3 cal_point_light(PointLight light){
 	float diffuse_coef=max(dot(direction,normalize(normal)),0);
 	vec3 diffuse=diffuse_coef*vec3(texture2D(material.texture_diffuse0,texcoord))*light.color;
 
-	vec3 view_vec=normalize(eye_pos-frag_world_pos);
-	vec3 half_vec=normalize(direction+view_vec);
 	vec3 specular;
 	if(material.shininess>=1.0){
+		vec3 view_vec=normalize(eye_pos-frag_world_pos);
+		vec3 half_vec=normalize(direction+view_vec);
 		float specular_coef=pow(max(dot(half_vec,normalize(normal)),0),material.shininess);
-		specular=specular_coef *vec3(texture2D(material.texture_specular0,texcoord))*light.color;
+		specular=specular_coef *vec3(texture2D(material.texture_diffuse0,texcoord))*light.color;
+
+		specular=specular_coef *vec3(1.0);
 	}else{
 		specular=vec3(0.0);
 	}

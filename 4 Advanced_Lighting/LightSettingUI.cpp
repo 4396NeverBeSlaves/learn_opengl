@@ -31,6 +31,7 @@ void LightSettingUI::display() {
 				ImGui::TableNextColumn(); ImGui::Checkbox("checkbox 3", &test_b[3]);
 				ImGui::TableNextColumn(); ImGui::Checkbox("checkbox 4", &test_b[4]);
 				ImGui::EndTable();
+				ImGui::TreePop();
 			}
 		}
 		if (ImGui::Button("Add direction light.")) {
@@ -45,57 +46,60 @@ void LightSettingUI::display() {
 		ImGui::BeginTabBar("Lights");
 		if (ImGui::BeginTabItem("Direction")) {
 			display_ltype = LightType::DirectionLight;
-			ImGui::BeginListBox("Direction Light");
-			for (size_t i = 0; i < LightManager::lights.size(); i++) {
-				if (LightManager::lights[i]->type != LightType::DirectionLight)
-					continue;
+			if (ImGui::BeginListBox("Direction Light")) {
+				for (size_t i = 0; i < LightManager::lights.size(); i++) {
+					if (LightManager::lights[i]->type != LightType::DirectionLight)
+						continue;
 
-				const bool is_selected = (i == dir_light_idx);
+					const bool is_selected = (i == dir_light_idx);
 
-				if (ImGui::Selectable(LightManager::lights[i]->name.c_str(), is_selected)) {
-					dir_light_idx = i;
+					if (ImGui::Selectable(LightManager::lights[i]->name.c_str(), is_selected)) {
+						dir_light_idx = i;
+					}
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();
 				}
-				if (is_selected)
-					ImGui::SetItemDefaultFocus();
+				ImGui::EndListBox();
 			}
-			ImGui::EndListBox();
 			ImGui::EndTabItem();
 		}
 
 		if (ImGui::BeginTabItem("Point")) {
 			display_ltype = LightType::PointLight;
-			ImGui::BeginListBox("Point Light");
-			for (size_t i = 0; i < LightManager::lights.size(); i++) {
-				if (LightManager::lights[i]->type != LightType::PointLight)
-					continue;
+			if (ImGui::BeginListBox("Point Light")) {
+				for (size_t i = 0; i < LightManager::lights.size(); i++) {
+					if (LightManager::lights[i]->type != LightType::PointLight)
+						continue;
 
-				const bool is_selected = (i == point_light_idx);
+					const bool is_selected = (i == point_light_idx);
 
-				if (ImGui::Selectable(LightManager::lights[i]->name.c_str(), is_selected)) {
-					point_light_idx = i;
+					if (ImGui::Selectable(LightManager::lights[i]->name.c_str(), is_selected)) {
+						point_light_idx = i;
+					}
+					if (point_light_idx)
+						ImGui::SetItemDefaultFocus();
 				}
-				if (point_light_idx)
-					ImGui::SetItemDefaultFocus();
+				ImGui::EndListBox();
 			}
-			ImGui::EndListBox();
 			ImGui::EndTabItem();
 		}
 		if (ImGui::BeginTabItem("Spot")) {
 			display_ltype = LightType::SpotLight;
-			ImGui::BeginListBox("Spot Light");
-			for (size_t i = 0; i < LightManager::lights.size(); i++) {
-				if (LightManager::lights[i]->type != LightType::SpotLight)
-					continue;
+			if (ImGui::BeginListBox("Spot Light")) {
+				for (size_t i = 0; i < LightManager::lights.size(); i++) {
+					if (LightManager::lights[i]->type != LightType::SpotLight)
+						continue;
 
-				const bool is_selected = (i == spot_light_idx);
+					const bool is_selected = (i == spot_light_idx);
 
-				if (ImGui::Selectable(LightManager::lights[i]->name.c_str(), is_selected)) {
-					spot_light_idx = i;
+					if (ImGui::Selectable(LightManager::lights[i]->name.c_str(), is_selected)) {
+						spot_light_idx = i;
+					}
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();
 				}
-				if (is_selected)
-					ImGui::SetItemDefaultFocus();
+				ImGui::EndListBox();
 			}
-			ImGui::EndListBox();
 			ImGui::EndTabItem();
 		}
 		ImGui::EndTabBar();
@@ -105,7 +109,7 @@ void LightSettingUI::display() {
 			ImGui::Checkbox("Open", &open_status_temp);
 			LightManager::lights[dir_light_idx]->set_open_status(open_status_temp);
 			ImGui::SameLine(); ImGui::SliderFloat3("Color", value_ptr(LightManager::lights[dir_light_idx]->color), 0.0, 1.0, "%.2f");
-			ImGui::SliderFloat3("Direction", value_ptr(static_cast<DirectionLight*>(LightManager::lights[dir_light_idx])->direction), 0.0, 1.0, "%.2f");
+			ImGui::SliderFloat3("Direction", value_ptr(static_cast<DirectionLight*>(LightManager::lights[dir_light_idx])->direction), -1.0, 1.0, "%.2f");
 			break;
 		}
 		case LightType::PointLight: {
@@ -125,7 +129,7 @@ void LightSettingUI::display() {
 			ImGui::SliderFloat3("Position", value_ptr(static_cast<SpotLight*>(LightManager::lights[spot_light_idx])->origin_position), -50.0, 50.0, "%.2f");
 			ImGui::SliderFloat3("Attenuation_coefs", value_ptr(static_cast<SpotLight*>(LightManager::lights[spot_light_idx])->_attenuation_coefs), 0.0, 1.0, "%.5f",ImGuiSliderFlags_Logarithmic);
 			
-			ImGui::SliderFloat3("Spot Direction", value_ptr(static_cast<SpotLight*>(LightManager::lights[spot_light_idx])->origin_spot_dir), 0.0, 1.0, "%.2f");
+			ImGui::SliderFloat3("Spot Direction", value_ptr(static_cast<SpotLight*>(LightManager::lights[spot_light_idx])->origin_spot_dir), -1.0, 1.0, "%.2f");
 			ImGui::SliderFloat("Inner Angle", &static_cast<SpotLight*>(LightManager::lights[spot_light_idx])->_inner_range_angle, 0.0, 90.0, "%.1f");
 			ImGui::SliderFloat("Outer Angle", &static_cast<SpotLight*>(LightManager::lights[spot_light_idx])->_outer_range_angle, 0.0, 90.0, "%.1f");
 			break;

@@ -114,7 +114,8 @@ void Model::load_texture(aiMaterial* material, vector<unsigned int>* textureIndi
 	for (int i = 0; i < material->GetTextureCount(ai_tex_type); i++) {
 
 		material->GetTexture(ai_tex_type, i, &tex_name);
-		tex_path = directory + string(tex_name.C_Str());
+		//tex_path = directory + string(tex_name.C_Str());
+		tex_path = string(tex_name.C_Str());
 
 		int j;
 		for (j = 0; j < textures.size(); j++) {

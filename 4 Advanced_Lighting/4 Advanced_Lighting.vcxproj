@@ -160,8 +160,10 @@
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="ModelManager.cpp" />
+    <ClCompile Include="normal_map.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="shadow_mapping.cpp" />
+    <ClCompile Include="shadow_mapping_imgui.cpp" />
     <ClCompile Include="stb_img.cpp" />
     <ClCompile Include="Texture.cpp" />
   </ItemGroup>
@@ -174,6 +176,10 @@
     <None Include="basic_light_shader.vert" />
     <None Include="basic_obj_shader.frag" />
     <None Include="basic_obj_shader.vert" />
+    <None Include="normal_map_light_shader.frag" />
+    <None Include="normal_map_light_shader.vert" />
+    <None Include="normal_map_obj_shader.frag" />
+    <None Include="normal_map_obj_shader.vert" />
     <None Include="shadow_mapping_depth_shader.frag" />
     <None Include="shadow_mapping_depth_shader.vert" />
     <None Include="shadow_mapping_light_shader.frag" />

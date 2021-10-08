@@ -54,15 +54,14 @@ void PointLight::draw() {
 	light_model->shader->set_matrix("projection", perspective((float)radians(cam.fov), (float)WIDTH / HEIGHT, 0.1f, 100.0f));
 	light_model->shader->set_uniform_3fv("light_color", this->color);
 
-	//lighting_model.rotate(lightingshader, rotate_radians, vec3(0, 1, 0));
 	light_model->translate(this->origin_position);
-	
+	light_model->scale(vec3(0.1,0.1,0.1));
 	light_model->draw();
 	
+
 	mat4 light_model_matrix(1.0);
-	//light_model_matrix = rotate(light_model_matrix, rotate_radians, vec3(0, 1, 0));
 	light_model_matrix = translate(light_model_matrix, this->origin_position);	//在原位置进行model变换
-	
+
 	this->position = vec3(light_model_matrix * vec4(0.0, 0.0, 0.0, 1.0));
 }
 
