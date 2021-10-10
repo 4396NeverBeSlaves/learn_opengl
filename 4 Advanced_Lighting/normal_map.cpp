@@ -146,8 +146,8 @@ int main() {
 
 	ModelManger::add_model(wall);
 
-	Model* plane = new Model(R"(..\Assets\plane.obj)", objshader);
-	Model* box1 = new Model(R"(..\Assets\box_marble.obj)", objshader);
+	//Model* plane = new Model(R"(..\Assets\plane.obj)", objshader);
+	//Model* box1 = new Model(R"(..\Assets\box_marble.obj)", objshader);
 	//Model* box2 = new Model(R"(..\Assets\box_marble.obj)", objshader);
 	//Model* box3 = new Model(R"(..\Assets\box_marble.obj)", objshader);
 	//ModelManger::add_model(plane);
