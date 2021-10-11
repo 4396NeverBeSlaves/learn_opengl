@@ -76,6 +76,10 @@ void Model::process_mesh(aiMesh* mesh, const aiScene* scene) {
 		vert.position = vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
 		if (mesh->HasNormals())
 			vert.normal = vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+		if (mesh->HasTangentsAndBitangents()) {
+			vert.tangents = vec3(mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z);
+			vert.bitangents = vec3(mesh->mBitangents[i].x, mesh->mBitangents[i].y, mesh->mBitangents[i].z);
+		}
 		if (mesh->mTextureCoords[0]) {
 			vert.texcoords = vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
 		}

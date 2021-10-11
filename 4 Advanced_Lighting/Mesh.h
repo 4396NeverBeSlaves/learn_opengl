@@ -16,6 +16,8 @@ struct Vertex{
 	vec3 position;
 	vec3 normal;
 	vec2 texcoords;
+	vec3 tangents;
+	vec3 bitangents;
 };
 
 class Mesh {

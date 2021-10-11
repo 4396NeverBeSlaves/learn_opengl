@@ -32,9 +32,11 @@ struct SpotLight{
 	float quadratic;
 };
 
-in vec3 normal;
+//in vec3 normal;
 in vec3 frag_world_pos;
 in vec2 texcoord;
+in vec3 tangents;
+in vec3 bitangents;
 
 #define MAX_DIRECTION_LIGHTS_NUM 16
 #define MAX_POINT_LIGHTS_NUM 16
@@ -50,7 +52,15 @@ uniform SpotLight spot_lights[MAX_SPOT_LIGHTS_NUM];
 
 out vec4 FragColor;
 
+vec3 cal_normal(){
+	vec3 n=cross(tangents,bitangents); 
+	mat3 TBN=mat3(tangents,bitangents,n);
+	vec3 normal_tangent_space= vec3(texture(material.texture_specular0,texcoord))*2 -1.0;
+	return TBN*normal_tangent_space;
+}
+
 vec3 cal_direction_light(DirectionLight light){
+	vec3 normal=cal_normal();
 
 	vec3 ambient=vec3(texture2D(material.texture_diffuse0,texcoord))*light.color*0.2f;
 	vec3 direction=normalize(-light.direction);
@@ -73,8 +83,7 @@ vec3 cal_direction_light(DirectionLight light){
 }
 
 vec3 cal_point_light(PointLight light){
-	vec3 normal= vec3(texture(material.texture_specular0,texcoord));
-	normal=(normal*2)-1.0;
+	vec3 normal=cal_normal();
 
 	vec3 ambient=vec3(texture2D(material.texture_diffuse0,texcoord))*light.color*0.2f;
 
@@ -100,6 +109,8 @@ vec3 cal_point_light(PointLight light){
 	return (ambient+diffuse+specular)*attenuation;
 }
 vec3 cal_spot_light(SpotLight light){
+	vec3 normal=cal_normal();
+
 	vec3 ambient=vec3(texture2D(material.texture_diffuse0,texcoord))*light.color*0.2f;
 
 	vec3 direction=normalize(light.position.xyz-frag_world_pos);
