@@ -20,7 +20,7 @@
 #include"ModelManager.h"
 #include"LightSettingUI.h"
 
-namespace normal_map_{
+//namespace parallax_map_{
 using namespace std;
 using namespace glm;
 
@@ -136,24 +136,15 @@ int main() {
 
 	float time1 = glfwGetTime();
 
-	lightingshader = new Shader(R"(..\4 Advanced_Lighting\normal_map_light_shader.vert)",R"(..\4 Advanced_Lighting\normal_map_light_shader.frag)");
+	lightingshader = new Shader(R"(..\4 Advanced_Lighting\parallax_map_light_shader.vert)", R"(..\4 Advanced_Lighting\parallax_map_light_shader.frag)");
 	light_box = new Model(R"(..\Assets\box.obj)", lightingshader);
 
-	Shader* objshader = new Shader(R"(..\4 Advanced_Lighting\normal_map_obj_shader.vert)", R"(..\4 Advanced_Lighting\normal_map_obj_shader.frag)");
+	Shader* objshader = new Shader(R"(..\4 Advanced_Lighting\parallax_map_obj_shader.vert)", R"(..\4 Advanced_Lighting\parallax_map_obj_shader.frag)");
 
-	Model* wall = new Model(R"(..\Assets\wall.obj)", objshader);
-	//Texture wall_normal(R"(..\Assets\normal_mapping_normal_map.png)",0,TextureType::Diffuse,false);
+	Model* wall = new Model(R"(..\Assets\wall_red.obj)", objshader);
+	Texture depth_map(R"(..\Assets\bricks2_disp.jpg)",0,TextureType::Diffuse,false);
 
 	ModelManger::add_model(wall);
-
-	//Model* plane = new Model(R"(..\Assets\plane.obj)", objshader);
-	//Model* box1 = new Model(R"(..\Assets\box_marble.obj)", objshader);
-	//Model* box2 = new Model(R"(..\Assets\box_marble.obj)", objshader);
-	//Model* box3 = new Model(R"(..\Assets\box_marble.obj)", objshader);
-	//ModelManger::add_model(plane);
-	//ModelManger::add_model(box1);
-	//ModelManger::add_model(box2);
-	//ModelManger::add_model(box3);
 
 	vec3 light_coef(1.0, 0.007, 0.00028);
 
@@ -163,7 +154,8 @@ int main() {
 	float one_second = 0;
 	int frame = 0;
 	vec3 pos(0);
-	float wall_angle=0;
+	float wall_angle = 0;
+	float parallax_scale = 0.036;
 	while (!glfwWindowShouldClose(w)) {
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -171,13 +163,15 @@ int main() {
 		LightSettingUI::display();
 		ImGui::Begin("wall");
 		ImGui::Text("pos");
-		ImGui::SliderFloat("x",value_ptr(pos),-10.0,10.0);
-		ImGui::SliderFloat("y", value_ptr(pos)+1, -10.0, 10.0);
+		ImGui::SliderFloat("x", value_ptr(pos), -10.0, 10.0);
+		ImGui::SliderFloat("y", value_ptr(pos) + 1, -10.0, 10.0);
 		ImGui::SliderFloat("z", value_ptr(pos) + 2, -10.0, 10.0);
 		ImGui::Text("rotate");
-		ImGui::SliderFloat("angle",&wall_angle,-180.0,180.0);
+		ImGui::SliderFloat("angle", &wall_angle, -180.0, 180.0);
 		wall->translate(pos);
-		wall->rotate(radians(wall_angle),vec3(1,0,0));
+		wall->rotate(radians(wall_angle), vec3(1, 0, 0));
+		ImGui::Separator();
+		ImGui::SliderFloat("parallax_scale", &parallax_scale, 0.0, 0.1);
 		ImGui::End();
 		ImGui::Render();
 		delta_time = get_delta_time();
@@ -202,9 +196,10 @@ int main() {
 		objshader->set_matrix("projection", perspective((float)radians(cam.fov), (float)WIDTH / HEIGHT, 0.1f, 100.0f));
 		objshader->set_uniform_3fv("eye_pos", cam.cam_pos);
 
-		//glActiveTexture(GL_TEXTURE2);
-		//glBindTexture(GL_TEXTURE_2D,wall_normal.get_texture_obj());
-		//objshader->set_texture("material.normal_map",2);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D,depth_map.get_texture_obj());
+		objshader->set_texture("material.texture_depth",2);
+		objshader->set_uniform_1f("parallax_scale", parallax_scale);
 
 
 		ModelManger::draw();
@@ -226,4 +221,4 @@ int main() {
 	glfwTerminate();
 	return 0;
 }
-}
+//}

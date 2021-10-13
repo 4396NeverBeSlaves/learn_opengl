@@ -25,6 +25,9 @@
     <Filter Include="资源文件\normal_map">
       <UniqueIdentifier>{666a08bc-b206-499c-a4c2-95e1b368beb7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="资源文件\parallax_map">
+      <UniqueIdentifier>{e85ddb9a-cc59-4230-aee2-4a05cc70b306}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
@@ -98,6 +101,9 @@
     <ClCompile Include="normal_map.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="parallax_map.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="basic_light_shader.frag">
@@ -159,6 +165,24 @@
     </None>
     <None Include="normal_map_obj_shader.vert">
       <Filter>资源文件\normal_map</Filter>
+    </None>
+    <None Include="parallax_map_light_shader.frag">
+      <Filter>资源文件\parallax_map</Filter>
+    </None>
+    <None Include="parallax_map_light_shader.vert">
+      <Filter>资源文件\parallax_map</Filter>
+    </None>
+    <None Include="parallax_map_obj_shader.frag">
+      <Filter>资源文件\parallax_map</Filter>
+    </None>
+    <None Include="parallax_map_obj_shader.vert">
+      <Filter>资源文件\parallax_map</Filter>
+    </None>
+    <None Include="parallax_map_obj_shader_tan.frag">
+      <Filter>资源文件\parallax_map</Filter>
+    </None>
+    <None Include="parallax_map_obj_shader_tan.vert">
+      <Filter>资源文件\parallax_map</Filter>
     </None>
   </ItemGroup>
 </Project>
