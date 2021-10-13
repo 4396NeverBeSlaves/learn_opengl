@@ -23,6 +23,5 @@ void main(){
 	vec3 tangents=normalize((normal_matrix* vec4(aTangents,0.0)).xyz);
 	vec3 bitangents=normalize((normal_matrix* vec4(aBitangents,0.0)).xyz);
 	vec3 n=cross(tangents,bitangents); 
-	//vec3 n=cross(bitangents,tangents); 
 	TBN=mat3(tangents,bitangents,n);
 }

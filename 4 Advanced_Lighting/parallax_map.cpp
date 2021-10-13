@@ -141,8 +141,10 @@ int main() {
 
 	Shader* objshader = new Shader(R"(..\4 Advanced_Lighting\parallax_map_obj_shader.vert)", R"(..\4 Advanced_Lighting\parallax_map_obj_shader.frag)");
 
-	Model* wall = new Model(R"(..\Assets\wall_red.obj)", objshader);
-	Texture depth_map(R"(..\Assets\bricks2_disp.jpg)",0,TextureType::Diffuse,false);
+	Model* wall = new Model(R"(..\Assets\wall_wood.obj)", objshader);
+	Texture depth_map(R"(..\Assets\wall_wood_disp.png)",0,TextureType::Diffuse,false);
+	//Model* wall = new Model(R"(..\Assets\wall_red.obj)", objshader);
+	//Texture depth_map(R"(..\Assets\bricks2_disp.jpg)",0,TextureType::Diffuse,false);
 
 	ModelManger::add_model(wall);
 
@@ -156,6 +158,7 @@ int main() {
 	vec3 pos(0);
 	float wall_angle = 0;
 	float parallax_scale = 0.036;
+	int parallax_option = 0;
 	while (!glfwWindowShouldClose(w)) {
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -171,7 +174,8 @@ int main() {
 		wall->translate(pos);
 		wall->rotate(radians(wall_angle), vec3(1, 0, 0));
 		ImGui::Separator();
-		ImGui::SliderFloat("parallax_scale", &parallax_scale, 0.0, 0.1);
+		ImGui::SliderFloat("parallax_scale", &parallax_scale, 0.0, 0.2);
+		ImGui::SliderInt("parallax_option", &parallax_option, 0, 2);
 		ImGui::End();
 		ImGui::Render();
 		delta_time = get_delta_time();
@@ -200,7 +204,7 @@ int main() {
 		glBindTexture(GL_TEXTURE_2D,depth_map.get_texture_obj());
 		objshader->set_texture("material.texture_depth",2);
 		objshader->set_uniform_1f("parallax_scale", parallax_scale);
-
+		objshader->set_uniform_1int("parallax_option", parallax_option);
 
 		ModelManger::draw();
 

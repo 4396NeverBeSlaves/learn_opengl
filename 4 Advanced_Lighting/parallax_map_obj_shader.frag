@@ -40,6 +40,7 @@ in mat3 TBN;
 #define MAX_POINT_LIGHTS_NUM 16
 #define MAX_SPOT_LIGHTS_NUM 16
 
+uniform int parallax_option;
 uniform float time;
 uniform float parallax_scale;
 uniform vec3 eye_pos;
@@ -61,10 +62,59 @@ vec2 cal_texcoord_parallax(vec3 view_vec,vec2 _texcoord){
 	vec3 view_vec_tangentspace=transpose(TBN)*view_vec;
 	
 	vec2 offset=-(view_vec_tangentspace.xy/view_vec_tangentspace.z)*(depth*parallax_scale);
-	//offset=vec2(offset.x,-offset.y);
-	if(offset.y>0.0 &&offset.x>0.0)
-		discard;
+	offset=vec2(offset.x,-offset.y);
+	//offset=offset*2.0-1.0;
 	return _texcoord+offset;
+}
+
+vec2 cal_texcoord_steep_parallax(vec3 view_vec,vec2 _texcoord){
+	int layers_num=10;
+	float layer_depth=1.0/layers_num;
+	float cur_layer_depth=0.0;
+	vec3 view_vec_tangentspace=transpose(TBN)*view_vec;
+	vec3 p=-view_vec_tangentspace*parallax_scale;
+	vec2 delta_texcoord=vec2(p.x,-p.y)/layers_num;
+
+	vec2 cur_texcoord=_texcoord;
+	float cur_sample_depth=texture(material.texture_depth,_texcoord).r;
+	
+	while(cur_sample_depth>cur_layer_depth){
+		cur_texcoord=cur_texcoord+delta_texcoord;
+		cur_sample_depth=texture(material.texture_depth,cur_texcoord).r;
+
+		cur_layer_depth=cur_layer_depth+layer_depth;
+	}
+	return cur_texcoord;
+}
+
+vec2 cal_texcoord_parallax_occlusion(vec3 view_vec,vec2 _texcoord){
+	int layers_num=10;
+	float layer_depth=1.0/layers_num;
+	float cur_layer_depth=0.0;
+	vec3 view_vec_tangentspace=transpose(TBN)*view_vec;
+	vec3 p=-view_vec_tangentspace*parallax_scale;
+	vec2 delta_texcoord=vec2(p.x,-p.y)/layers_num;
+
+	vec2 cur_texcoord=_texcoord;
+	float cur_sample_depth=texture(material.texture_depth,_texcoord).r;
+	
+	while(cur_sample_depth>cur_layer_depth){
+		cur_texcoord=cur_texcoord+delta_texcoord;
+		cur_sample_depth=texture(material.texture_depth,cur_texcoord).r;
+		cur_layer_depth=cur_layer_depth+layer_depth;
+	}
+
+	vec2 pre_texcoord=cur_texcoord-delta_texcoord;
+	float pre_sample_depth=texture(material.texture_depth,pre_texcoord).r;
+	float pre_layer_depth=cur_layer_depth-layer_depth;
+
+	float delta_pre=pre_sample_depth-pre_layer_depth;
+	float delta_cur=cur_layer_depth-cur_sample_depth;
+
+	float weight=delta_cur/(delta_cur+delta_pre);
+	vec2 lerp_texcoord=pre_texcoord*weight+cur_texcoord*(1.0-weight);
+
+	return lerp_texcoord;
 }
 
 vec3 cal_direction_light(DirectionLight light){
@@ -94,7 +144,13 @@ vec3 cal_direction_light(DirectionLight light){
 
 vec3 cal_point_light(PointLight light){
 	vec3 view_vec=normalize(eye_pos-frag_world_pos);
-	vec2 texcoord_parallax=cal_texcoord_parallax(view_vec,texcoord);
+	vec2 texcoord_parallax=vec2(0);
+	if(parallax_option==0)
+		texcoord_parallax=cal_texcoord_parallax(view_vec,texcoord);
+	if(parallax_option==1)
+		texcoord_parallax=cal_texcoord_steep_parallax(view_vec,texcoord);
+	if(parallax_option==2)
+		texcoord_parallax=cal_texcoord_parallax_occlusion(view_vec,texcoord);
 
 	vec3 normal=cal_normal(texcoord_parallax);
 
