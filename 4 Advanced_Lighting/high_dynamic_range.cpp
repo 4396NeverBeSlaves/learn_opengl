@@ -20,7 +20,7 @@
 #include"ModelManager.h"
 #include"LightSettingUI.h"
 
-namespace parallax_map_{
+//namespace high_dynamic_range_{
 using namespace std;
 using namespace glm;
 
@@ -31,7 +31,7 @@ Model* light_box;
 
 const int WIDTH = 900;
 const int HEIGHT = 900;
-vec3 cam_pos(0, 3, 4);
+vec3 cam_pos(-1, 4.5, 1);
 vec3 cam_dir(0, 0, -1);
 vec3 cam_up(0, 1, 0);
 Camera cam(cam_pos, cam_dir, cam_up);
@@ -136,46 +136,85 @@ int main() {
 
 	float time1 = glfwGetTime();
 
-	lightingshader = new Shader(R"(..\4 Advanced_Lighting\parallax_map_light_shader.vert)", R"(..\4 Advanced_Lighting\parallax_map_light_shader.frag)");
+	lightingshader = new Shader(R"(..\4 Advanced_Lighting\hdr_light_shader.vert)", R"(..\4 Advanced_Lighting\hdr_light_shader.frag)");
 	light_box = new Model(R"(..\Assets\box.obj)", lightingshader);
 
-	Shader* objshader = new Shader(R"(..\4 Advanced_Lighting\parallax_map_obj_shader.vert)", R"(..\4 Advanced_Lighting\parallax_map_obj_shader.frag)");
+	Shader* objshader = new Shader(R"(..\4 Advanced_Lighting\hdr_obj_shader.vert)", R"(..\4 Advanced_Lighting\hdr_obj_shader.frag)");
+	Shader* screen_shader = new Shader(R"(..\4 Advanced_Lighting\hdr_screen_shader.vert)",R"(..\4 Advanced_Lighting\hdr_screen_shader.frag)");
 
-	Model* wall = new Model(R"(..\Assets\wall_wood.obj)", objshader);
-	Texture depth_map(R"(..\Assets\wall_wood_disp.png)",0,TextureType::Diffuse,false);
-	//Model* wall = new Model(R"(..\Assets\wall_red.obj)", objshader);
-	//Texture depth_map(R"(..\Assets\bricks2_disp.jpg)",0,TextureType::Diffuse,false);
+	Model* wood_box = new Model(R"(..\Assets\long_wood_box.obj)", objshader);
 
-	ModelManger::add_model(wall);
+	ModelManger::add_model(wood_box);
 
 	vec3 light_coef(1.0, 0.007, 0.00028);
 
-	LightManager::create_point_light(light_box, vec3(1.0, 1.0, 1.0), vec3(0, 0.5, 2), light_coef);
-	//LightManager::create_direction_light(lightingshader, vec3(1.0, 1.0, 1.0), vec3(0.0, -0.7, -0.7));
+	vec3 white_light = vec3(10.0, 10.0, 10.0);
+	LightManager::create_point_light(light_box, white_light, vec3(-1.0, 4.2, -13.8),vec3(1.0, 1.0, 10.0));
+	LightManager::create_point_light(light_box, vec3(0.3, 0.0, 0.0), vec3(-1.1, 4.2, -10.9), vec3(1.0,2.0,2.0));
+	LightManager::create_point_light(light_box, vec3(0.0, 0.4, 0.0), vec3(-1.1, 4.2, -7.9), vec3(1.0, 2.0, 2.0));
+	LightManager::create_point_light(light_box, vec3(0.0, 0.0, 0.5), vec3(-1.1, 4.2, -3.9), vec3(1.0, 2.0, 2.0));
 
+	unsigned int screenTex, depthRBO, FBO;
+	unsigned int screenVAO, screenVBO;
+	{
+		float screen_box[] = {
+		-1.0,-1.0,0.0,0.0,
+		1.0,-1.0,1.0,0.0,
+		1.0,1.0,1.0,1.0,
+
+		-1.0,-1.0,0.0,0.0,
+		1.0,1.0,1.0,1.0,
+		-1.0,1.0,0.0,1.0
+		};
+
+		
+		glGenVertexArrays(1, &screenVAO);
+		glBindVertexArray(screenVAO);
+		glGenBuffers(1, &screenVBO);
+		glBindBuffer(GL_ARRAY_BUFFER, screenVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(screen_box), screen_box, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 2, GL_FLOAT, false, 4 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, false, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+		glBindVertexArray(0);
+
+		glGenFramebuffers(1, &FBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+		glGenTextures(1, &screenTex);
+		glBindTexture(GL_TEXTURE_2D, screenTex);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, WIDTH, HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, screenTex, 0);
+		glGenRenderbuffers(1, &depthRBO);
+		glBindRenderbuffer(GL_RENDERBUFFER, depthRBO);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, WIDTH, HEIGHT);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRBO);
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			cout << "Framebuffer didn't complete!" << endl;
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	bool gamma = true;
+	bool hdr = true;
+	float exposure = 1.0;
 	float one_second = 0;
 	int frame = 0;
-	vec3 pos(0);
-	float wall_angle = 0;
-	float parallax_scale = 0.036;
-	int parallax_option = 0;
 	while (!glfwWindowShouldClose(w)) {
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 		LightSettingUI::display();
-		ImGui::Begin("wall");
-		ImGui::Text("pos");
-		ImGui::SliderFloat("x", value_ptr(pos), -10.0, 10.0);
-		ImGui::SliderFloat("y", value_ptr(pos) + 1, -10.0, 10.0);
-		ImGui::SliderFloat("z", value_ptr(pos) + 2, -10.0, 10.0);
-		ImGui::Text("rotate");
-		ImGui::SliderFloat("angle", &wall_angle, -180.0, 180.0);
-		wall->translate(pos);
-		wall->rotate(radians(wall_angle), vec3(1, 0, 0));
-		ImGui::Separator();
-		ImGui::SliderFloat("parallax_scale", &parallax_scale, 0.0, 0.2);
-		ImGui::SliderInt("parallax_option", &parallax_option, 0, 2);
+		ImGui::Begin("hdr");
+		ImGui::SliderFloat3("white light", value_ptr(LightManager::lights[0]->color), 1, 200, "%.f" );
+		ImGui::Checkbox("gamma", &gamma);
+		ImGui::Checkbox("hdr", &hdr);
+		if (hdr) {
+			ImGui::SliderFloat("exposure", &exposure, 0.1, 10.0,"%.1f");
+		}
 		ImGui::End();
 		ImGui::Render();
 		delta_time = get_delta_time();
@@ -189,6 +228,8 @@ int main() {
 			frame = 0;
 		}
 
+		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+
 		glClearColor(background_color.r, background_color.g, background_color.b, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -200,13 +241,22 @@ int main() {
 		objshader->set_matrix("projection", perspective((float)radians(cam.fov), (float)WIDTH / HEIGHT, 0.1f, 100.0f));
 		objshader->set_uniform_3fv("eye_pos", cam.cam_pos);
 
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D,depth_map.get_texture_obj());
-		objshader->set_texture("material.texture_depth",2);
-		objshader->set_uniform_1f("parallax_scale", parallax_scale);
-		objshader->set_uniform_1int("parallax_option", parallax_option);
-
 		ModelManger::draw();
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClearColor(0, 0, 0, 1.0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		screen_shader->use();
+		screen_shader->set_uniform_1b("use_gamma", gamma);
+		screen_shader->set_uniform_1b("use_hdr", hdr);
+		screen_shader->set_uniform_1f("exposure", exposure);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, screenTex);
+		screen_shader->set_texture("screenTexture", 0);
+		glBindVertexArray(screenVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glBindVertexArray(0);
 
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		glfwSwapBuffers(w);
@@ -225,4 +275,4 @@ int main() {
 	glfwTerminate();
 	return 0;
 }
-}
+//}

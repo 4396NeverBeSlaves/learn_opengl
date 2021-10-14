@@ -160,6 +160,12 @@ void Shader::set_uniform_1int(const string& name, int x) {
 void Shader::set_uniform_3int(const string& name, int x, int y, int z) {
 	glUniform3f(glGetUniformLocation(id, name.c_str()), x, y, z);
 }
+
+void Shader::set_uniform_1b(const string& name, bool x) {
+	int value = x == true ? 1 : 0;
+	glUniform1i(glGetUniformLocation(id, name.c_str()), value);
+}
+
 void Shader::set_uniform_3bool(const string& name, bool x, bool y, bool z) {
 	glUniform3f(glGetUniformLocation(id, name.c_str()), x, y, z);
 }

@@ -47,8 +47,6 @@ void PointLight::draw() {
 	if (this->opened == false)
 		return;
 
-	float rotate_radians = (float)radians(30.0) * glfwGetTime();
-
 	light_model->shader->use();
 	light_model->shader->set_matrix("view", cam.get_view_matrix());
 	light_model->shader->set_matrix("projection", perspective((float)radians(cam.fov), (float)WIDTH / HEIGHT, 0.1f, 100.0f));
@@ -58,7 +56,6 @@ void PointLight::draw() {
 	light_model->scale(vec3(0.1,0.1,0.1));
 	light_model->draw();
 	
-
 	mat4 light_model_matrix(1.0);
 	light_model_matrix = translate(light_model_matrix, this->origin_position);	//在原位置进行model变换
 
@@ -88,30 +85,30 @@ void SpotLight::draw() {
 	if (this->opened == false)
 		return;
 
-	float rotate_radians = (float)radians(30.0) * glfwGetTime();
+	//float rotate_radians = (float)radians(30.0) * glfwGetTime();
 
 	light_model->shader->use();
-	this->color.x = sin(radians(glfwGetTime() * 10)) / 2 + 0.5;
-	this->color.y = sin(radians(glfwGetTime() * 10 + 120)) / 2 + 0.5;
-	this->color.z = sin(radians(glfwGetTime() * 10 + 240)) / 2 + 0.5;
+	//this->color.x = sin(radians(glfwGetTime() * 10)) / 2 + 0.5;
+	//this->color.y = sin(radians(glfwGetTime() * 10 + 120)) / 2 + 0.5;
+	//this->color.z = sin(radians(glfwGetTime() * 10 + 240)) / 2 + 0.5;
 	light_model->shader->set_uniform_3fv("light_color", this->color);
 	light_model->shader->set_matrix("view", cam.get_view_matrix());
 	light_model->shader->set_matrix("projection", perspective((float)radians(cam.fov), (float)WIDTH / HEIGHT, 0.1f, 100.0f));
 
 	
 	light_model->translate(this->origin_position);
-	light_model->rotate(rotate_radians, vec3(0, 1, 0));
-
+	//light_model->rotate(rotate_radians, vec3(0, 1, 0));
+	light_model->scale(vec3(0.1, 0.1, 0.1));
 	light_model->draw();
 
 	mat4 light_model_matrix(1.0);
 	light_model_matrix = translate(light_model_matrix, this->origin_position);	//在原位置进行model变换
-	light_model_matrix = rotate(light_model_matrix, rotate_radians, vec3(0, 1, 0));
+	//light_model_matrix = rotate(light_model_matrix, rotate_radians, vec3(0, 1, 0));
 
 	mat4 light_dir_rotate_matrix = mat4(1.0);	//注视方向向量只用变换旋转方向，不用变换位移
-	light_dir_rotate_matrix = rotate(light_dir_rotate_matrix, rotate_radians, vec3(0, 1, 0));
+	//light_dir_rotate_matrix = rotate(light_dir_rotate_matrix, rotate_radians, vec3(0, 1, 0));
 
 	this->position = vec3(light_model_matrix * vec4(0.0, 0.0, 0.0, 1.0));
-	this->spot_dir= vec3(light_dir_rotate_matrix * vec4(this->origin_spot_dir, 0.0));
+	//this->spot_dir= vec3(light_dir_rotate_matrix * vec4(this->origin_spot_dir, 0.0));
 
 }

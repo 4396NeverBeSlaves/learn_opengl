@@ -28,6 +28,9 @@
     <Filter Include="资源文件\parallax_map">
       <UniqueIdentifier>{e85ddb9a-cc59-4230-aee2-4a05cc70b306}</UniqueIdentifier>
     </Filter>
+    <Filter Include="资源文件\HDR">
+      <UniqueIdentifier>{468a80ab-1420-4e70-a522-fc7058b62a2d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
@@ -102,6 +105,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="parallax_map.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="high_dynamic_range.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -183,6 +189,24 @@
     </None>
     <None Include="parallax_map_obj_shader_tan.vert">
       <Filter>资源文件\parallax_map</Filter>
+    </None>
+    <None Include="hdr_light_shader.frag">
+      <Filter>资源文件\HDR</Filter>
+    </None>
+    <None Include="hdr_light_shader.vert">
+      <Filter>资源文件\HDR</Filter>
+    </None>
+    <None Include="hdr_obj_shader.frag">
+      <Filter>资源文件\HDR</Filter>
+    </None>
+    <None Include="hdr_obj_shader.vert">
+      <Filter>资源文件\HDR</Filter>
+    </None>
+    <None Include="hdr_screen_shader.vert">
+      <Filter>资源文件\HDR</Filter>
+    </None>
+    <None Include="hdr_screen_shader.frag">
+      <Filter>资源文件\HDR</Filter>
     </None>
   </ItemGroup>
 </Project>

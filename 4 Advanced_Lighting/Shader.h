@@ -27,6 +27,7 @@ public:
 	void set_uniform_1int(const string& name, int x);
 	void set_uniform_3int(const string& name, int x, int y, int z);
 	void set_uniform_3iv(const string& name, glm::ivec3 v);
+	void set_uniform_1b(const string& name, bool x);
 	void set_uniform_3bool(const string& name, bool x, bool y, bool z);
 	void set_texture(const string& name,unsigned int GL_TextureNo);
 	void set_matrix(const string& name, glm::mat4 mat);
