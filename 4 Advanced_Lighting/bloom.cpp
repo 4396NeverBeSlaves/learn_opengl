@@ -20,7 +20,7 @@
 #include"ModelManager.h"
 #include"LightSettingUI.h"
 
-namespace high_dynamic_range_{
+//namespace _bloom__{
 using namespace std;
 using namespace glm;
 
@@ -136,11 +136,11 @@ int main() {
 
 	float time1 = glfwGetTime();
 
-	lightingshader = new Shader(R"(..\4 Advanced_Lighting\hdr_light_shader.vert)", R"(..\4 Advanced_Lighting\hdr_light_shader.frag)");
+	lightingshader = new Shader(R"(..\4 Advanced_Lighting\bloom_light_shader.vert)", R"(..\4 Advanced_Lighting\bloom_light_shader.frag)");
 	light_box = new Model(R"(..\Assets\box.obj)", lightingshader);
 
-	Shader* objshader = new Shader(R"(..\4 Advanced_Lighting\hdr_obj_shader.vert)", R"(..\4 Advanced_Lighting\hdr_obj_shader.frag)");
-	Shader* screen_shader = new Shader(R"(..\4 Advanced_Lighting\hdr_screen_shader.vert)",R"(..\4 Advanced_Lighting\hdr_screen_shader.frag)");
+	Shader* objshader = new Shader(R"(..\4 Advanced_Lighting\bloom_obj_shader.vert)", R"(..\4 Advanced_Lighting\bloom_obj_shader.frag)");
+	Shader* screen_shader = new Shader(R"(..\4 Advanced_Lighting\bloom_screen_shader.vert)", R"(..\4 Advanced_Lighting\bloom_screen_shader.frag)");
 
 	Model* wood_box = new Model(R"(..\Assets\long_wood_box.obj)", objshader);
 
@@ -148,13 +148,13 @@ int main() {
 
 	vec3 light_coef(1.0, 0.007, 0.00028);
 
-	vec3 white_light = vec3(10.0, 10.0, 10.0);
-	LightManager::create_point_light(light_box, white_light, vec3(-1.0, 4.2, -13.8),vec3(1.0, 1.0, 10.0));
-	LightManager::create_point_light(light_box, vec3(0.3, 0.0, 0.0), vec3(-1.1, 4.2, -10.9), vec3(1.0,2.0,2.0));
-	LightManager::create_point_light(light_box, vec3(0.0, 0.4, 0.0), vec3(-1.1, 4.2, -7.9), vec3(1.0, 2.0, 2.0));
-	LightManager::create_point_light(light_box, vec3(0.0, 0.0, 0.5), vec3(-1.1, 4.2, -3.9), vec3(1.0, 2.0, 2.0));
+	vec3 white_light = vec3(20.0, 20.0, 20.0);
+	LightManager::create_point_light(light_box, white_light, vec3(-1.0, 4.2, -13.8), vec3(1.0, 1.0, 10.0));
+	LightManager::create_point_light(light_box, vec3(20.0, 0.0, 0.0), vec3(-1.1, 4.2, -10.9), vec3(1.0, 2.0, 2.0));
+	LightManager::create_point_light(light_box, vec3(0.0, 20.0, 0.0), vec3(-1.1, 4.2, -7.9), vec3(1.0, 2.0, 2.0));
+	LightManager::create_point_light(light_box, vec3(0.0, 0.0, 100.0), vec3(-1.1, 4.2, -3.9), vec3(1.0, 2.0, 2.0));
 
-	unsigned int screenTex, depthRBO, FBO;
+	unsigned int screenTex[2], depthRBO, FBO;
 	unsigned int screenVAO, screenVBO;
 	{
 		float screen_box[] = {
@@ -167,7 +167,7 @@ int main() {
 		-1.0,1.0,0.0,1.0
 		};
 
-		
+
 		glGenVertexArrays(1, &screenVAO);
 		glBindVertexArray(screenVAO);
 		glGenBuffers(1, &screenVBO);
@@ -181,14 +181,19 @@ int main() {
 
 		glGenFramebuffers(1, &FBO);
 		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-		glGenTextures(1, &screenTex);
-		glBindTexture(GL_TEXTURE_2D, screenTex);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, WIDTH, HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, screenTex, 0);
+		glGenTextures(2, screenTex);
+		for (size_t i = 0; i < 2; i++) {
+			glBindTexture(GL_TEXTURE_2D, screenTex[i]);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, WIDTH, HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+i, GL_TEXTURE_2D, screenTex[i], 0);
+		}
+		GLenum bufs[] = { GL_COLOR_ATTACHMENT0,GL_COLOR_ATTACHMENT1 };
+		glDrawBuffers(2,bufs);
+
 		glGenRenderbuffers(1, &depthRBO);
 		glBindRenderbuffer(GL_RENDERBUFFER, depthRBO);
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, WIDTH, HEIGHT);
@@ -201,6 +206,7 @@ int main() {
 	bool gamma = true;
 	bool hdr = true;
 	float exposure = 1.0;
+	int tex_id = 0;
 	float one_second = 0;
 	int frame = 0;
 	while (!glfwWindowShouldClose(w)) {
@@ -209,12 +215,13 @@ int main() {
 		ImGui::NewFrame();
 		LightSettingUI::display();
 		ImGui::Begin("hdr");
-		ImGui::SliderFloat3("white light", value_ptr(LightManager::lights[0]->color), 1, 200, "%.f" );
+		ImGui::SliderFloat3("white light", value_ptr(LightManager::lights[0]->color), 1, 200, "%.f");
 		ImGui::Checkbox("gamma", &gamma);
 		ImGui::Checkbox("hdr", &hdr);
 		if (hdr) {
-			ImGui::SliderFloat("exposure", &exposure, 0.1, 10.0,"%.1f");
+			ImGui::SliderFloat("exposure", &exposure, 0.1, 10.0, "%.1f");
 		}
+		ImGui::SliderInt("base light bloom", &tex_id, 0, 1);
 		ImGui::End();
 		ImGui::Render();
 		delta_time = get_delta_time();
@@ -252,8 +259,11 @@ int main() {
 		screen_shader->set_uniform_1b("use_hdr", hdr);
 		screen_shader->set_uniform_1f("exposure", exposure);
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, screenTex);
+		glBindTexture(GL_TEXTURE_2D, screenTex[tex_id]);
 		screen_shader->set_texture("screenTexture", 0);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, screenTex[1]);
+		screen_shader->set_texture("bloomTexture", 1);
 		glBindVertexArray(screenVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		glBindVertexArray(0);
@@ -275,4 +285,4 @@ int main() {
 	glfwTerminate();
 	return 0;
 }
-}
+//}

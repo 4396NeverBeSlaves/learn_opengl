@@ -31,6 +31,9 @@
     <Filter Include="资源文件\HDR">
       <UniqueIdentifier>{468a80ab-1420-4e70-a522-fc7058b62a2d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="资源文件\bloom">
+      <UniqueIdentifier>{ebbda69e-c627-472a-8c17-eb4957f54a73}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
@@ -108,6 +111,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="high_dynamic_range.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="bloom.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -207,6 +213,24 @@
     </None>
     <None Include="hdr_screen_shader.frag">
       <Filter>资源文件\HDR</Filter>
+    </None>
+    <None Include="bloom_light_shader.frag">
+      <Filter>资源文件\bloom</Filter>
+    </None>
+    <None Include="bloom_light_shader.vert">
+      <Filter>资源文件\bloom</Filter>
+    </None>
+    <None Include="bloom_obj_shader.frag">
+      <Filter>资源文件\bloom</Filter>
+    </None>
+    <None Include="bloom_obj_shader.vert">
+      <Filter>资源文件\bloom</Filter>
+    </None>
+    <None Include="bloom_screen_shader.frag">
+      <Filter>资源文件\bloom</Filter>
+    </None>
+    <None Include="bloom_screen_shader.vert">
+      <Filter>资源文件\bloom</Filter>
     </None>
   </ItemGroup>
 </Project>

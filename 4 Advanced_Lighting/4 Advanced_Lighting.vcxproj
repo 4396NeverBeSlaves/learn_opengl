@@ -153,6 +153,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="basic_imgui.cpp" />
+    <ClCompile Include="bloom.cpp" />
     <ClCompile Include="high_dynamic_range.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="LightManager.cpp" />
@@ -178,6 +179,12 @@
     <None Include="basic_light_shader.vert" />
     <None Include="basic_obj_shader.frag" />
     <None Include="basic_obj_shader.vert" />
+    <None Include="bloom_light_shader.frag" />
+    <None Include="bloom_light_shader.vert" />
+    <None Include="bloom_obj_shader.frag" />
+    <None Include="bloom_obj_shader.vert" />
+    <None Include="bloom_screen_shader.frag" />
+    <None Include="bloom_screen_shader.vert" />
     <None Include="hdr_light_shader.frag" />
     <None Include="hdr_light_shader.vert" />
     <None Include="hdr_obj_shader.frag" />
