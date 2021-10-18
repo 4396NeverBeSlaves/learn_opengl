@@ -232,5 +232,11 @@
     <None Include="bloom_screen_shader.vert">
       <Filter>资源文件\bloom</Filter>
     </None>
+    <None Include="bloom_blur_shader.vert">
+      <Filter>资源文件\bloom</Filter>
+    </None>
+    <None Include="bloom_blur_shader.frag">
+      <Filter>资源文件\bloom</Filter>
+    </None>
   </ItemGroup>
 </Project>

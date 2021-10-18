@@ -141,6 +141,7 @@ int main() {
 
 	Shader* objshader = new Shader(R"(..\4 Advanced_Lighting\bloom_obj_shader.vert)", R"(..\4 Advanced_Lighting\bloom_obj_shader.frag)");
 	Shader* screen_shader = new Shader(R"(..\4 Advanced_Lighting\bloom_screen_shader.vert)", R"(..\4 Advanced_Lighting\bloom_screen_shader.frag)");
+	Shader* blur_shader = new Shader(R"(..\4 Advanced_Lighting\bloom_blur_shader.vert)", R"(..\4 Advanced_Lighting\bloom_blur_shader.frag)");
 
 	Model* wood_box = new Model(R"(..\Assets\long_wood_box.obj)", objshader);
 
@@ -189,10 +190,10 @@ int main() {
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, WIDTH, HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+i, GL_TEXTURE_2D, screenTex[i], 0);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, screenTex[i], 0);
 		}
 		GLenum bufs[] = { GL_COLOR_ATTACHMENT0,GL_COLOR_ATTACHMENT1 };
-		glDrawBuffers(2,bufs);
+		glDrawBuffers(2, bufs);
 
 		glGenRenderbuffers(1, &depthRBO);
 		glBindRenderbuffer(GL_RENDERBUFFER, depthRBO);
@@ -203,10 +204,30 @@ int main() {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
+	unsigned int blurTex[2], blurFBO[2];
+	{
+		glGenFramebuffers(2, blurFBO);
+		glGenTextures(2, blurTex);
+		for (size_t i = 0; i < 2; i++) {
+			glBindFramebuffer(GL_FRAMEBUFFER, blurFBO[i]);
+			glBindTexture(GL_TEXTURE_2D, blurTex[i]);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, WIDTH, HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, blurTex[i], 0);
+			if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+				cout << "Framebuffer incomplete!" << endl;
+			}
+		}
+	}
 	bool gamma = true;
 	bool hdr = true;
+	bool use_bloom = true;
 	float exposure = 1.0;
-	int tex_id = 0;
+	int tex_id = screenTex[0];
+	int blur_times = 1;
 	float one_second = 0;
 	int frame = 0;
 	while (!glfwWindowShouldClose(w)) {
@@ -221,14 +242,18 @@ int main() {
 		if (hdr) {
 			ImGui::SliderFloat("exposure", &exposure, 0.1, 10.0, "%.1f");
 		}
-		ImGui::SliderInt("base light bloom", &tex_id, 0, 1);
+		ImGui::Checkbox("bloom", &use_bloom);
+		ImGui::RadioButton("screen", &tex_id, screenTex[0]); ImGui::SameLine();
+		ImGui::RadioButton("brightness", &tex_id, screenTex[1]); ImGui::SameLine();
+		ImGui::RadioButton("blur brightness", &tex_id, blurTex[1]);
+		ImGui::SliderInt("blur times", &blur_times, 1, 10);
 		ImGui::End();
 		ImGui::Render();
 		delta_time = get_delta_time();
 		one_second += delta_time;
 		frame++;
 		if (one_second >= 1.0) {
-			string title = format("Shadow Mapping. [{:6.1f}FPS, {:5.2f}ms] [FOV: {:4.1f}] [Yaw:{:7.1f}, Pitch:{:5.1f}] [Position:{:5.1f} {:5.1f} {:5.1f}, Direction:{:4.1f} {:4.1f} {:4.1f}]",
+			string title = format("Bloom. [{:6.1f}FPS, {:5.2f}ms] [FOV: {:4.1f}] [Yaw:{:7.1f}, Pitch:{:5.1f}] [Position:{:5.1f} {:5.1f} {:5.1f}, Direction:{:4.1f} {:4.1f} {:4.1f}]",
 				frame / one_second, one_second / frame * 1000, cam.fov, cam.yaw_, cam.pitch_, cam.cam_pos.x, cam.cam_pos.y, cam.cam_pos.z, cam.cam_dir.x, cam.cam_dir.y, cam.cam_dir.z);
 			glfwSetWindowTitle(w, title.c_str());
 			one_second = 0.0;
@@ -250,6 +275,30 @@ int main() {
 
 		ModelManger::draw();
 
+		bool vertical = false;
+		bool first_time = true;
+		for (size_t i = 0; i < blur_times * 2; i++) {
+			glBindFramebuffer(GL_FRAMEBUFFER, blurFBO[vertical]);
+			glClearColor(0, 0, 0, 1.0);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			blur_shader->use();
+			blur_shader->set_uniform_1b("horizontal", !vertical);
+			glActiveTexture(GL_TEXTURE0);
+			if (first_time) {
+				glBindTexture(GL_TEXTURE_2D, screenTex[1]);
+				first_time = false;
+			}
+			else
+				glBindTexture(GL_TEXTURE_2D, blurTex[!vertical]);
+			blur_shader->set_texture("blurTexture", 0);
+			glBindVertexArray(screenVAO);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+			glBindVertexArray(0);
+			vertical = !vertical;
+		}
+
+
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearColor(0, 0, 0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -258,12 +307,21 @@ int main() {
 		screen_shader->set_uniform_1b("use_gamma", gamma);
 		screen_shader->set_uniform_1b("use_hdr", hdr);
 		screen_shader->set_uniform_1f("exposure", exposure);
+		screen_shader->set_uniform_1f("use_bloom", use_bloom);
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, screenTex[tex_id]);
+		glBindTexture(GL_TEXTURE_2D, tex_id);
 		screen_shader->set_texture("screenTexture", 0);
+
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, screenTex[1]);
-		screen_shader->set_texture("bloomTexture", 1);
+		if (tex_id==screenTex[0]) {
+			glBindTexture(GL_TEXTURE_2D, blurTex[1]);
+			screen_shader->set_texture("blurTexture", 1);
+		}
+		else {
+			glBindTexture(GL_TEXTURE_2D, 0);
+		}
+		
+
 		glBindVertexArray(screenVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		glBindVertexArray(0);
