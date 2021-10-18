@@ -154,6 +154,7 @@
   <ItemGroup>
     <ClCompile Include="basic_imgui.cpp" />
     <ClCompile Include="bloom.cpp" />
+    <ClCompile Include="deferred_shading.cpp" />
     <ClCompile Include="high_dynamic_range.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="LightManager.cpp" />
@@ -187,6 +188,14 @@
     <None Include="bloom_obj_shader.vert" />
     <None Include="bloom_screen_shader.frag" />
     <None Include="bloom_screen_shader.vert" />
+    <None Include="deferred_shading_blur_shader.frag" />
+    <None Include="deferred_shading_blur_shader.vert" />
+    <None Include="deferred_shading_light_shader.frag" />
+    <None Include="deferred_shading_light_shader.vert" />
+    <None Include="deferred_shading_obj_shader.frag" />
+    <None Include="deferred_shading_obj_shader.vert" />
+    <None Include="deferred_shading_screen_shader.frag" />
+    <None Include="deferred_shading_screen_shader.vert" />
     <None Include="hdr_light_shader.frag" />
     <None Include="hdr_light_shader.vert" />
     <None Include="hdr_obj_shader.frag" />

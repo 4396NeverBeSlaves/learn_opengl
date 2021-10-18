@@ -20,7 +20,7 @@
 #include"ModelManager.h"
 #include"LightSettingUI.h"
 
-namespace _bloom__{
+//namespace deferred_shading_{
 using namespace std;
 using namespace glm;
 
@@ -136,12 +136,12 @@ int main() {
 
 	float time1 = glfwGetTime();
 
-	lightingshader = new Shader(R"(..\4 Advanced_Lighting\bloom_light_shader.vert)", R"(..\4 Advanced_Lighting\bloom_light_shader.frag)");
+	lightingshader = new Shader(R"(..\4 Advanced_Lighting\deferred_shading_light_shader.vert)", R"(..\4 Advanced_Lighting\deferred_shading_light_shader.frag)");
 	light_box = new Model(R"(..\Assets\box.obj)", lightingshader);
 
-	Shader* objshader = new Shader(R"(..\4 Advanced_Lighting\bloom_obj_shader.vert)", R"(..\4 Advanced_Lighting\bloom_obj_shader.frag)");
-	Shader* screen_shader = new Shader(R"(..\4 Advanced_Lighting\bloom_screen_shader.vert)", R"(..\4 Advanced_Lighting\bloom_screen_shader.frag)");
-	Shader* blur_shader = new Shader(R"(..\4 Advanced_Lighting\bloom_blur_shader.vert)", R"(..\4 Advanced_Lighting\bloom_blur_shader.frag)");
+	Shader* objshader = new Shader(R"(..\4 Advanced_Lighting\deferred_shading_obj_shader.vert)", R"(..\4 Advanced_Lighting\deferred_shading_obj_shader.frag)");
+	Shader* screen_shader = new Shader(R"(..\4 Advanced_Lighting\deferred_shading_screen_shader.vert)", R"(..\4 Advanced_Lighting\deferred_shading_screen_shader.frag)");
+	Shader* blur_shader = new Shader(R"(..\4 Advanced_Lighting\deferred_shading_blur_shader.vert)", R"(..\4 Advanced_Lighting\deferred_shading_blur_shader.frag)");
 
 	Model* wood_box = new Model(R"(..\Assets\long_wood_box.obj)", objshader);
 
@@ -253,7 +253,7 @@ int main() {
 		one_second += delta_time;
 		frame++;
 		if (one_second >= 1.0) {
-			string title = format("Bloom. [{:6.1f}FPS, {:5.2f}ms] [FOV: {:4.1f}] [Yaw:{:7.1f}, Pitch:{:5.1f}] [Position:{:5.1f} {:5.1f} {:5.1f}, Direction:{:4.1f} {:4.1f} {:4.1f}]",
+			string title = format("Deferred Shading. [{:6.1f}FPS, {:5.2f}ms] [FOV: {:4.1f}] [Yaw:{:7.1f}, Pitch:{:5.1f}] [Position:{:5.1f} {:5.1f} {:5.1f}, Direction:{:4.1f} {:4.1f} {:4.1f}]",
 				frame / one_second, one_second / frame * 1000, cam.fov, cam.yaw_, cam.pitch_, cam.cam_pos.x, cam.cam_pos.y, cam.cam_pos.z, cam.cam_dir.x, cam.cam_dir.y, cam.cam_dir.z);
 			glfwSetWindowTitle(w, title.c_str());
 			one_second = 0.0;
@@ -313,14 +313,14 @@ int main() {
 		screen_shader->set_texture("screenTexture", 0);
 
 		glActiveTexture(GL_TEXTURE1);
-		if (tex_id==screenTex[0]) {
+		if (tex_id == screenTex[0]) {
 			glBindTexture(GL_TEXTURE_2D, blurTex[1]);
 			screen_shader->set_texture("blurTexture", 1);
 		}
 		else {
 			glBindTexture(GL_TEXTURE_2D, 0);
 		}
-		
+
 
 		glBindVertexArray(screenVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -343,4 +343,4 @@ int main() {
 	glfwTerminate();
 	return 0;
 }
-}
+//}

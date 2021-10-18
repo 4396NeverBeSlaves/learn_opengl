@@ -34,6 +34,9 @@
     <Filter Include="资源文件\bloom">
       <UniqueIdentifier>{ebbda69e-c627-472a-8c17-eb4957f54a73}</UniqueIdentifier>
     </Filter>
+    <Filter Include="资源文件\deferred_shading">
+      <UniqueIdentifier>{36620cc3-d994-4653-8f11-b4c67f013769}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
@@ -114,6 +117,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="bloom.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="deferred_shading.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -237,6 +243,30 @@
     </None>
     <None Include="bloom_blur_shader.frag">
       <Filter>资源文件\bloom</Filter>
+    </None>
+    <None Include="deferred_shading_blur_shader.frag">
+      <Filter>资源文件\deferred_shading</Filter>
+    </None>
+    <None Include="deferred_shading_blur_shader.vert">
+      <Filter>资源文件\deferred_shading</Filter>
+    </None>
+    <None Include="deferred_shading_light_shader.frag">
+      <Filter>资源文件\deferred_shading</Filter>
+    </None>
+    <None Include="deferred_shading_light_shader.vert">
+      <Filter>资源文件\deferred_shading</Filter>
+    </None>
+    <None Include="deferred_shading_obj_shader.frag">
+      <Filter>资源文件\deferred_shading</Filter>
+    </None>
+    <None Include="deferred_shading_obj_shader.vert">
+      <Filter>资源文件\deferred_shading</Filter>
+    </None>
+    <None Include="deferred_shading_screen_shader.frag">
+      <Filter>资源文件\deferred_shading</Filter>
+    </None>
+    <None Include="deferred_shading_screen_shader.vert">
+      <Filter>资源文件\deferred_shading</Filter>
     </None>
   </ItemGroup>
 </Project>
