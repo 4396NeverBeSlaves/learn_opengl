@@ -1,6 +1,7 @@
 #version 330 core
-layout(location=0)out vec4 FragColor;
-layout(location=1)out vec4 BloomColor;
+layout(location=0)out vec3 gPosition;
+layout(location=1)out vec3 gNormal;
+layout(location=2)out vec4 gAlbedoSpecular;
 
 struct Material{
 	sampler2D texture_diffuse0;
@@ -56,7 +57,6 @@ vec3 cal_direction_light(DirectionLight light){
 	vec3 direction=normalize(-light.direction);
 	float diffuse_coef=max(dot(direction,normalize(normal)),0);
 	vec3 diffuse=diffuse_coef*vec3(texture2D(material.texture_diffuse0,texcoord))*light.color;
-	diffuse=vec3(0.0);
 
 	vec3 half_vec=normalize(direction+view_vec);
 	vec3 specular;
@@ -74,7 +74,7 @@ vec3 cal_direction_light(DirectionLight light){
 vec3 cal_point_light(PointLight light){
 	vec3 view_vec=normalize(eye_pos-frag_world_pos);
 
-	vec3 ambient=vec3(texture2D(material.texture_diffuse0,texcoord))*light.color*0.2f;
+	vec3 ambient=vec3(texture2D(material.texture_diffuse0,texcoord))*light.color*0.1f;
 
 	vec3 direction=normalize(light.position-frag_world_pos);
 	float distance_=length(light.position.xyz-frag_world_pos);
@@ -90,7 +90,6 @@ vec3 cal_point_light(PointLight light){
 		float specular_coef=pow(max(dot(half_vec,normalize(normal)),0),material.shininess);
 		specular=specular_coef *vec3(texture2D(material.texture_diffuse0,texcoord))*light.color;
 
-		specular=specular_coef *vec3(1.0);
 	}else{
 		specular=vec3(0.0);
 	}
@@ -134,7 +133,7 @@ vec3 cal_spot_light(SpotLight light){
 
 	return (ambient+diffuse+specular)*attenuation*in_light;
 }
-void main(){
+void main1(){
 	vec3 result=vec3(0.0);
 
 	for(int i=0;i<lights_count[0];i++){
@@ -147,10 +146,17 @@ void main(){
 		result+=cal_spot_light(spot_lights[i]);
 	}
 
-	FragColor=vec4(result,1.0);
-	float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
-	if(brightness>1.0)
-		BloomColor=vec4(FragColor.rgb,1.0);
-	else
-		BloomColor=vec4(0.0,0.0,0.0,1.0);
+//	FragColor=vec4(result,1.0);
+//	float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+//	if(brightness>1.0)
+//		BloomColor=vec4(FragColor.rgb,1.0);
+//	else
+//		BloomColor=vec4(0.0,0.0,0.0,1.0);
+}
+
+void main(){
+	gPosition=frag_world_pos;
+	gNormal=normal;
+	gAlbedoSpecular.rgb=texture(material.texture_diffuse0,texcoord).rgb;
+	gAlbedoSpecular.a=texture(material.texture_specular0,texcoord).r;
 }

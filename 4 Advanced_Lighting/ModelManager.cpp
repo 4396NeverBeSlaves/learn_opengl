@@ -23,8 +23,11 @@ void ModelManger::draw() {
 }
 
 void ModelManger::destroy_all_models() {
-	for (vector<Model*>::iterator it=models.begin(); it != models.end();it++) {
-		delete (*it);
+	for (auto& m : models) {
+		if (m) {
+			delete m;
+			m = NULL;
+		}
 	}
 }
 

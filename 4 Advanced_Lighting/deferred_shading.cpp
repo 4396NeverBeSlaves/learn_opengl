@@ -25,13 +25,13 @@ using namespace std;
 using namespace glm;
 
 vector<Texture> textures;
-vec3 background_color = vec3(0.2, 0.2, 0.2);
+vec3 background_color = vec3(0.0, 0.0, 0.0);
 Shader* lightingshader;
 Model* light_box;
 
 const int WIDTH = 900;
 const int HEIGHT = 900;
-vec3 cam_pos(-1, 4.5, 1);
+vec3 cam_pos(10, 10, 40);
 vec3 cam_dir(0, 0, -1);
 vec3 cam_up(0, 1, 0);
 Camera cam(cam_pos, cam_dir, cam_up);
@@ -143,19 +143,22 @@ int main() {
 	Shader* screen_shader = new Shader(R"(..\4 Advanced_Lighting\deferred_shading_screen_shader.vert)", R"(..\4 Advanced_Lighting\deferred_shading_screen_shader.frag)");
 	Shader* blur_shader = new Shader(R"(..\4 Advanced_Lighting\deferred_shading_blur_shader.vert)", R"(..\4 Advanced_Lighting\deferred_shading_blur_shader.frag)");
 
-	Model* wood_box = new Model(R"(..\Assets\long_wood_box.obj)", objshader);
+	//Model* nanosuit = new Model(R"(..\Assets\nanosuit\nanosuit.obj)", objshader);
 
-	ModelManger::add_model(wood_box);
+	for (size_t i = 0; i < 9; i++) {
+		ModelManger::add_model(new Model(R"(..\Assets\nanosuit\nanosuit.obj)", objshader));
+	}
+	
 
 	vec3 light_coef(1.0, 0.007, 0.00028);
 
-	vec3 white_light = vec3(20.0, 20.0, 20.0);
-	LightManager::create_point_light(light_box, white_light, vec3(-1.0, 4.2, -13.8), vec3(1.0, 1.0, 10.0));
-	LightManager::create_point_light(light_box, vec3(20.0, 0.0, 0.0), vec3(-1.1, 4.2, -10.9), vec3(1.0, 2.0, 2.0));
-	LightManager::create_point_light(light_box, vec3(0.0, 20.0, 0.0), vec3(-1.1, 4.2, -7.9), vec3(1.0, 2.0, 2.0));
-	LightManager::create_point_light(light_box, vec3(0.0, 0.0, 100.0), vec3(-1.1, 4.2, -3.9), vec3(1.0, 2.0, 2.0));
+	vec3 white_light = vec3(7.0, 7.0, 7.0);
+	LightManager::create_point_light(light_box, white_light, vec3(0.0, 10.0, 4.0), light_coef);
+	//LightManager::create_point_light(light_box, vec3(20.0, 0.0, 0.0), vec3(-1.1, 4.2, -10.9), light_coef);
+	//LightManager::create_point_light(light_box, vec3(0.0, 20.0, 0.0), vec3(-1.1, 4.2, -7.9), light_coef);
+	//LightManager::create_point_light(light_box, vec3(0.0, 0.0, 100.0), vec3(-1.1, 4.2, -3.9), light_coef);
 
-	unsigned int screenTex[2], depthRBO, FBO;
+	unsigned int gbuffer[3], depthRBO, gframebuffer;
 	unsigned int screenVAO, screenVBO;
 	{
 		float screen_box[] = {
@@ -180,20 +183,27 @@ int main() {
 		glVertexAttribPointer(1, 2, GL_FLOAT, false, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 		glBindVertexArray(0);
 
-		glGenFramebuffers(1, &FBO);
-		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-		glGenTextures(2, screenTex);
+		glGenFramebuffers(1, &gframebuffer);
+		glBindFramebuffer(GL_FRAMEBUFFER, gframebuffer);
+		glGenTextures(3, gbuffer);
 		for (size_t i = 0; i < 2; i++) {
-			glBindTexture(GL_TEXTURE_2D, screenTex[i]);
+			glBindTexture(GL_TEXTURE_2D, gbuffer[i]);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, WIDTH, HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, screenTex[i], 0);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, WIDTH, HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, gbuffer[i], 0);
 		}
-		GLenum bufs[] = { GL_COLOR_ATTACHMENT0,GL_COLOR_ATTACHMENT1 };
-		glDrawBuffers(2, bufs);
+		glBindTexture(GL_TEXTURE_2D, gbuffer[2]);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, WIDTH, HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gbuffer[2], 0);
+		GLenum bufs[] = { GL_COLOR_ATTACHMENT0,GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+		glDrawBuffers(3, bufs);
 
 		glGenRenderbuffers(1, &depthRBO);
 		glBindRenderbuffer(GL_RENDERBUFFER, depthRBO);
@@ -222,12 +232,10 @@ int main() {
 			}
 		}
 	}
-	bool gamma = true;
-	bool hdr = true;
-	bool use_bloom = true;
+	bool gamma = false;
+	bool hdr = false;
 	float exposure = 1.0;
-	int tex_id = screenTex[0];
-	int blur_times = 1;
+	int tex_id = gbuffer[0];
 	float one_second = 0;
 	int frame = 0;
 	while (!glfwWindowShouldClose(w)) {
@@ -242,11 +250,11 @@ int main() {
 		if (hdr) {
 			ImGui::SliderFloat("exposure", &exposure, 0.1, 10.0, "%.1f");
 		}
-		ImGui::Checkbox("bloom", &use_bloom);
-		ImGui::RadioButton("screen", &tex_id, screenTex[0]); ImGui::SameLine();
-		ImGui::RadioButton("brightness", &tex_id, screenTex[1]); ImGui::SameLine();
-		ImGui::RadioButton("blur brightness", &tex_id, blurTex[1]);
-		ImGui::SliderInt("blur times", &blur_times, 1, 10);
+		ImGui::Separator();
+		ImGui::RadioButton("gbuffer position", &tex_id, gbuffer[0]); 
+		ImGui::RadioButton("gbuffer normal", &tex_id, gbuffer[1]); 
+		ImGui::RadioButton("gbuffer albedo & specular", &tex_id, gbuffer[2]);
+		ImGui::Separator();
 		ImGui::End();
 		ImGui::Render();
 		delta_time = get_delta_time();
@@ -260,8 +268,7 @@ int main() {
 			frame = 0;
 		}
 
-		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-
+		glBindFramebuffer(GL_FRAMEBUFFER, gframebuffer);
 		glClearColor(background_color.r, background_color.g, background_color.b, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -272,31 +279,10 @@ int main() {
 		objshader->set_matrix("view", cam.get_view_matrix());
 		objshader->set_matrix("projection", perspective((float)radians(cam.fov), (float)WIDTH / HEIGHT, 0.1f, 100.0f));
 		objshader->set_uniform_3fv("eye_pos", cam.cam_pos);
-
-		ModelManger::draw();
-
-		bool vertical = false;
-		bool first_time = true;
-		for (size_t i = 0; i < blur_times * 2; i++) {
-			glBindFramebuffer(GL_FRAMEBUFFER, blurFBO[vertical]);
-			glClearColor(0, 0, 0, 1.0);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-			blur_shader->use();
-			blur_shader->set_uniform_1b("horizontal", !vertical);
-			glActiveTexture(GL_TEXTURE0);
-			if (first_time) {
-				glBindTexture(GL_TEXTURE_2D, screenTex[1]);
-				first_time = false;
-			}
-			else
-				glBindTexture(GL_TEXTURE_2D, blurTex[!vertical]);
-			blur_shader->set_texture("blurTexture", 0);
-			glBindVertexArray(screenVAO);
-			glDrawArrays(GL_TRIANGLES, 0, 6);
-			glBindVertexArray(0);
-			vertical = !vertical;
+		for (size_t i = 0; i < 9; i++) {
+			ModelManger::models[i]->translate(vec3((i % 3)*10,0.0, (i / 3)*10));
 		}
+		ModelManger::draw();
 
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -307,20 +293,13 @@ int main() {
 		screen_shader->set_uniform_1b("use_gamma", gamma);
 		screen_shader->set_uniform_1b("use_hdr", hdr);
 		screen_shader->set_uniform_1f("exposure", exposure);
-		screen_shader->set_uniform_1f("use_bloom", use_bloom);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, tex_id);
 		screen_shader->set_texture("screenTexture", 0);
 
 		glActiveTexture(GL_TEXTURE1);
-		if (tex_id == screenTex[0]) {
-			glBindTexture(GL_TEXTURE_2D, blurTex[1]);
-			screen_shader->set_texture("blurTexture", 1);
-		}
-		else {
-			glBindTexture(GL_TEXTURE_2D, 0);
-		}
-
+		glBindTexture(GL_TEXTURE_2D, 0);
+		screen_shader->set_texture("blurTexture", 1);
 
 		glBindVertexArray(screenVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 6);

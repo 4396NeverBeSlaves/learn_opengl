@@ -19,5 +19,5 @@ void main(){
 	texcoord=aTexcoord;
 
 	mat4 normal_matrix=transpose(inverse(model));
-	normal=-mat3(normal_matrix)*aNormal;
+	normal=mat3(normal_matrix)*aNormal;
 }
