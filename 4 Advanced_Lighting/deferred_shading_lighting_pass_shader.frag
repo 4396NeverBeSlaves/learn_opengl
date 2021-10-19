@@ -1,11 +1,8 @@
 #version 330 core
-layout(location=0)out vec4 FragColor;
 
-struct Material{
-	sampler2D texture_diffuse0;
-	sampler2D texture_specular0;
-	float shininess;
-};
+#define MAX_DIRECTION_LIGHTS_NUM 16
+#define MAX_POINT_LIGHTS_NUM 64
+#define MAX_SPOT_LIGHTS_NUM 16
 
 struct DirectionLight{
 	vec3 color;
@@ -31,37 +28,47 @@ struct SpotLight{
 	float quadratic;
 };
 
-in vec3 frag_world_pos;
-in vec2 texcoord;
-in vec3 normal;
 
-#define MAX_DIRECTION_LIGHTS_NUM 16
-#define MAX_POINT_LIGHTS_NUM 64
-#define MAX_SPOT_LIGHTS_NUM 16
-
-uniform float time;
-uniform vec3 eye_pos;
-uniform Material material;
-uniform ivec3 lights_count;
+uniform sampler2D gPosition;
+uniform sampler2D gNormal;
+uniform sampler2D gAlbedoSpecular;
+uniform sampler2D screenTexture;
 uniform DirectionLight dir_lights[MAX_DIRECTION_LIGHTS_NUM];
 uniform PointLight point_lights[MAX_POINT_LIGHTS_NUM];
 uniform SpotLight spot_lights[MAX_SPOT_LIGHTS_NUM];
+uniform vec3 eye_pos;
+uniform ivec3 lights_count;
+uniform bool use_gamma;
+uniform bool use_hdr;
+uniform float exposure;
+uniform bool check_gbuffer;
+uniform int gbuffer_id;
 
+in vec2 texcoord;
+
+out vec4 FragColor;
+
+const float shininess=96.078431;
 
 vec3 cal_direction_light(DirectionLight light){
+	vec3 frag_world_pos=texture(gPosition,texcoord).xyz;
+	vec3 normal=texture(gNormal,texcoord).xyz;
+	vec4 albedo_spec=texture(gAlbedoSpecular,texcoord);
+	vec3 albedo=albedo_spec.rgb;
+	vec3 spec=albedo_spec.aaa;
+
 	vec3 view_vec=normalize(eye_pos-frag_world_pos);
 
-	vec3 ambient=vec3(texture2D(material.texture_diffuse0,texcoord))*light.color*0.2f;
+	vec3 ambient=albedo*light.color*0.2f;
 	vec3 direction=normalize(-light.direction);
 	float diffuse_coef=max(dot(direction,normalize(normal)),0);
-	vec3 diffuse=diffuse_coef*vec3(texture2D(material.texture_diffuse0,texcoord))*light.color;
-	diffuse=vec3(0.0);
+	vec3 diffuse=diffuse_coef*albedo*light.color;
 
 	vec3 half_vec=normalize(direction+view_vec);
 	vec3 specular;
-	if(material.shininess>=1.0){
-		float specular_coef=pow(max(dot(half_vec,normalize(normal)),0),material.shininess);
-		specular=specular_coef *vec3(texture2D(material.texture_diffuse0,texcoord))*light.color;
+	if(shininess>=1.0){
+		float specular_coef=pow(max(dot(half_vec,normalize(normal)),0),shininess);
+		specular=specular_coef *spec*light.color;
 
 	}else{
 		specular=vec3(0.0);
@@ -71,34 +78,41 @@ vec3 cal_direction_light(DirectionLight light){
 }
 
 vec3 cal_point_light(PointLight light){
+	vec3 frag_world_pos=texture(gPosition,texcoord).xyz;
+	vec3 normal=texture(gNormal,texcoord).xyz;
+	vec4 albedo_spec=texture(gAlbedoSpecular,texcoord);
+	vec3 albedo=albedo_spec.rgb;
+	vec3 spec=albedo_spec.aaa;
+	
 	vec3 view_vec=normalize(eye_pos-frag_world_pos);
 
-	vec3 ambient=vec3(texture2D(material.texture_diffuse0,texcoord))*light.color*0.2f;
+	vec3 ambient= albedo*light.color*0.2f;
 
 	vec3 direction=normalize(light.position-frag_world_pos);
 	float distance_=length(light.position.xyz-frag_world_pos);
 	float attenuation=1.0/(light.constant+light.linear*distance_+light.quadratic*distance_*distance_);
 
 	float diffuse_coef=max(dot(direction,normalize(normal)),0);
-	vec3 diffuse=diffuse_coef*vec3(texture2D(material.texture_diffuse0,texcoord))*light.color;
+	vec3 diffuse=diffuse_coef*albedo*light.color;
 
 	vec3 specular;
-	if(material.shininess>=1.0){
-		
-		vec3 half_vec=normalize(direction+view_vec);
-		float specular_coef=pow(max(dot(half_vec,normalize(normal)),0),material.shininess);
-		specular=specular_coef *vec3(texture2D(material.texture_specular0,texcoord))*light.color;
+	vec3 half_vec=normalize(direction+view_vec);
+	float specular_coef=pow(max(dot(half_vec,normalize(normal)),0),shininess);
+	specular=specular_coef *spec*light.color;
 
-	}else{
-		specular=vec3(0.0);
-	}
 
 	return (ambient+diffuse+specular)*attenuation;
 }
 vec3 cal_spot_light(SpotLight light){
+	vec3 frag_world_pos=texture(gPosition,texcoord).xyz;
+	vec3 normal=texture(gNormal,texcoord).xyz;
+	vec4 albedo_spec=texture(gAlbedoSpecular,texcoord);
+	vec3 albedo=albedo_spec.rgb;
+	vec3 spec=albedo_spec.aaa;
+
 	vec3 view_vec=normalize(eye_pos-frag_world_pos);
 
-	vec3 ambient=vec3(texture2D(material.texture_diffuse0,texcoord))*light.color*0.2f;
+	vec3 ambient=albedo*light.color*0.2f;
 
 	vec3 direction=normalize(light.position.xyz-frag_world_pos);
 
@@ -118,14 +132,14 @@ vec3 cal_spot_light(SpotLight light){
 	in_light=clamp((result-outer_range)/epsilon,0.0,1.0);
 
 	float diffuse_coef=max(dot(direction,normalize(normal)),0);
-	vec3 diffuse=diffuse_coef*vec3(texture2D(material.texture_diffuse0,texcoord))*light.color;
+	vec3 diffuse=diffuse_coef*albedo*light.color;
 
 	
 	vec3 half_vec=normalize(direction+view_vec);
 	vec3 specular;
-	if(material.shininess>=1.0){
-		float specular_coef=pow(max(dot(half_vec,normalize(normal)),0),material.shininess);
-		specular=specular_coef *vec3(texture2D(material.texture_specular0,texcoord))*light.color;
+	if(shininess>=1.0){
+		float specular_coef=pow(max(dot(half_vec,normalize(normal)),0),shininess);
+		specular=specular_coef *spec*light.color;
 	}else{
 		specular=vec3(0.0);
 	}
@@ -133,7 +147,27 @@ vec3 cal_spot_light(SpotLight light){
 	return (ambient+diffuse+specular)*attenuation*in_light;
 }
 void main(){
-	vec3 result=vec3(0.0);
+	const float gamma=2.2;
+	vec3 result;
+
+	vec4 light_model=texture(gAlbedoSpecular,texcoord);
+	if(light_model.a==-1.0){
+		FragColor=vec4(light_model.rgb,1.0);
+		return;
+	}
+
+	if(check_gbuffer){
+		if(gbuffer_id==0){
+			FragColor=texture(gPosition,texcoord);
+			return;
+		}else if(gbuffer_id==1){
+			FragColor=texture(gNormal,texcoord);
+			return;
+		}else{
+			FragColor=texture(gAlbedoSpecular,texcoord);
+			return;
+		}
+	}
 
 	for(int i=0;i<lights_count[0];i++){
 		result+=cal_direction_light(dir_lights[i]);
@@ -145,5 +179,11 @@ void main(){
 		result+=cal_spot_light(spot_lights[i]);
 	}
 
+	if(use_hdr)
+		result=vec3(1.0)-exp(-result*exposure);
+	
+	if(use_gamma)
+		result=pow(result,vec3(1.0/gamma));
+	
 	FragColor=vec4(result,1.0);
 }

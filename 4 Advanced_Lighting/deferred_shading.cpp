@@ -115,7 +115,7 @@ int main() {
 		return -1;
 	}
 
-	glfwSwapInterval(1);
+	//glfwSwapInterval(1);
 	glViewport(0, 0, WIDTH, HEIGHT);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glEnable(GL_DEPTH_TEST);
@@ -139,25 +139,43 @@ int main() {
 	lightingshader = new Shader(R"(..\4 Advanced_Lighting\deferred_shading_light_shader.vert)", R"(..\4 Advanced_Lighting\deferred_shading_light_shader.frag)");
 	light_box = new Model(R"(..\Assets\box.obj)", lightingshader);
 
-	Shader* objshader = new Shader(R"(..\4 Advanced_Lighting\deferred_shading_obj_shader.vert)", R"(..\4 Advanced_Lighting\deferred_shading_obj_shader.frag)");
+	Shader* obj_shader = new Shader(R"(..\4 Advanced_Lighting\deferred_shading_obj_shader.vert)", R"(..\4 Advanced_Lighting\deferred_shading_obj_shader.frag)");
 	Shader* screen_shader = new Shader(R"(..\4 Advanced_Lighting\deferred_shading_screen_shader.vert)", R"(..\4 Advanced_Lighting\deferred_shading_screen_shader.frag)");
-	Shader* blur_shader = new Shader(R"(..\4 Advanced_Lighting\deferred_shading_blur_shader.vert)", R"(..\4 Advanced_Lighting\deferred_shading_blur_shader.frag)");
 
-	//Model* nanosuit = new Model(R"(..\Assets\nanosuit\nanosuit.obj)", objshader);
+	Shader* gbuffer_shader = new Shader(R"(..\4 Advanced_Lighting\deferred_shading_gbuffer_shader.vert)", R"(..\4 Advanced_Lighting\deferred_shading_gbuffer_shader.frag)");
+	Shader* lighting_pass_shader = new Shader(R"(..\4 Advanced_Lighting\deferred_shading_lighting_pass_shader.vert)", R"(..\4 Advanced_Lighting\deferred_shading_lighting_pass_shader.frag)");
+	
+	Shader* shader0 = obj_shader;
+	Shader* shader1 = screen_shader;
+
+	//Model* nanosuit = new Model(R"(..\Assets\nanosuit\nanosuit.obj)", shader0);
 
 	for (size_t i = 0; i < 9; i++) {
-		ModelManger::add_model(new Model(R"(..\Assets\nanosuit\nanosuit.obj)", objshader));
+		ModelManger::add_model(new Model(R"(..\Assets\nanosuit\nanosuit.obj)", shader0));
 	}
 	
-
 	vec3 light_coef(1.0, 0.007, 0.00028);
 
-	vec3 white_light = vec3(7.0, 7.0, 7.0);
+	vec3 white_light = vec3(1.0, 1.0, 1.0);
 	LightManager::create_point_light(light_box, white_light, vec3(0.0, 10.0, 4.0), light_coef);
-	//LightManager::create_point_light(light_box, vec3(20.0, 0.0, 0.0), vec3(-1.1, 4.2, -10.9), light_coef);
-	//LightManager::create_point_light(light_box, vec3(0.0, 20.0, 0.0), vec3(-1.1, 4.2, -7.9), light_coef);
-	//LightManager::create_point_light(light_box, vec3(0.0, 0.0, 100.0), vec3(-1.1, 4.2, -3.9), light_coef);
+	LightManager::create_point_light(light_box, vec3(1.0, 0.0, 0.0), vec3(7.0, 10.0, 4.0), light_coef);
+	LightManager::create_point_light(light_box, vec3(0.0, 1.0, 0.0), vec3(14.0, 10.0, 4.0), light_coef);
+	LightManager::create_point_light(light_box, vec3(0.0, 0.0, 1.0), vec3(21.0, 10.0, 4.0), light_coef);
 
+	for (size_t i = 0; i < 3; i++) {
+		for (size_t j = 0; j < 3; j++) {
+			for (size_t k = 0; k < 3; k++) {
+				vec3 c;
+				float t = glfwGetTime();
+				c.x = sin(radians(t * 10000+ i)) / 2 + 0.5;
+				c.y = sin(radians(t * 10000+ 120 + j)) / 2 + 0.5;
+				c.z = sin(radians(t * 10000+ 240 + k)) / 2 + 0.5;
+				cout <<t<<" "<< c.x << " " << c.y << " " << c.z << endl;
+				vec3 p = vec3(-6, -2, -6) + vec3(i * 10, j * 10, k * 10);;
+				LightManager::create_point_light(light_box, c * 1.0f, p, light_coef);
+			}
+		}
+	}
 	unsigned int gbuffer[3], depthRBO, gframebuffer;
 	unsigned int screenVAO, screenVBO;
 	{
@@ -214,28 +232,12 @@ int main() {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
-	unsigned int blurTex[2], blurFBO[2];
-	{
-		glGenFramebuffers(2, blurFBO);
-		glGenTextures(2, blurTex);
-		for (size_t i = 0; i < 2; i++) {
-			glBindFramebuffer(GL_FRAMEBUFFER, blurFBO[i]);
-			glBindTexture(GL_TEXTURE_2D, blurTex[i]);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, WIDTH, HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, blurTex[i], 0);
-			if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-				cout << "Framebuffer incomplete!" << endl;
-			}
-		}
-	}
 	bool gamma = false;
 	bool hdr = false;
 	float exposure = 1.0;
-	int tex_id = gbuffer[0];
+	bool check_gbuffer = false;
+	int tex_id = 0;
+	bool use_forward_shading = true;
 	float one_second = 0;
 	int frame = 0;
 	while (!glfwWindowShouldClose(w)) {
@@ -250,11 +252,30 @@ int main() {
 		if (hdr) {
 			ImGui::SliderFloat("exposure", &exposure, 0.1, 10.0, "%.1f");
 		}
-		ImGui::Separator();
-		ImGui::RadioButton("gbuffer position", &tex_id, gbuffer[0]); 
-		ImGui::RadioButton("gbuffer normal", &tex_id, gbuffer[1]); 
-		ImGui::RadioButton("gbuffer albedo & specular", &tex_id, gbuffer[2]);
-		ImGui::Separator();
+		ImGui::Checkbox("check gbuffer", &check_gbuffer);
+		if(check_gbuffer){
+			ImGui::Separator();
+			ImGui::RadioButton("gbuffer position", &tex_id, 0);
+			ImGui::RadioButton("gbuffer normal", &tex_id, 1);
+			ImGui::RadioButton("gbuffer albedo & specular", &tex_id, 2);
+			ImGui::Separator();
+		}
+		ImGui::Checkbox("forward shading", &use_forward_shading);
+		if (use_forward_shading) {
+			lightingshader->use();
+			lightingshader->set_uniform_1b("forward_shading", true);
+			shader0 = obj_shader;
+			shader1 = screen_shader;
+		}
+		else {
+			lightingshader->use();
+			lightingshader->set_uniform_1b("forward_shading", false);
+			shader0 = gbuffer_shader;
+			shader1 = lighting_pass_shader;
+		}
+		for (auto& m : ModelManger::models) {
+			m->shader = shader0;
+		}
 		ImGui::End();
 		ImGui::Render();
 		delta_time = get_delta_time();
@@ -273,33 +294,42 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		LightManager::draw();
-		LightManager::update_lighting_info_in_obj_shader(objshader);
+		if (use_forward_shading)
+			LightManager::update_lighting_info_in_obj_shader(shader0);
+		else
+			LightManager::update_lighting_info_in_obj_shader(shader1);
 
-		objshader->use();
-		objshader->set_matrix("view", cam.get_view_matrix());
-		objshader->set_matrix("projection", perspective((float)radians(cam.fov), (float)WIDTH / HEIGHT, 0.1f, 100.0f));
-		objshader->set_uniform_3fv("eye_pos", cam.cam_pos);
+		shader0->use();
+		shader0->set_matrix("view", cam.get_view_matrix());
+		shader0->set_matrix("projection", perspective((float)radians(cam.fov), (float)WIDTH / HEIGHT, 0.1f, 100.0f));
+		shader0->set_uniform_3fv("eye_pos", cam.cam_pos);
 		for (size_t i = 0; i < 9; i++) {
 			ModelManger::models[i]->translate(vec3((i % 3)*10,0.0, (i / 3)*10));
 		}
 		ModelManger::draw();
 
-
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearColor(0, 0, 0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		screen_shader->use();
-		screen_shader->set_uniform_1b("use_gamma", gamma);
-		screen_shader->set_uniform_1b("use_hdr", hdr);
-		screen_shader->set_uniform_1f("exposure", exposure);
+		shader1->use();
+		shader1->set_uniform_3fv("eye_pos", cam.cam_pos);
+		shader1->set_uniform_1b("use_gamma", gamma);
+		shader1->set_uniform_1b("use_hdr", hdr);
+		shader1->set_uniform_1f("exposure", exposure);
+		shader1->set_uniform_1f("check_gbuffer", check_gbuffer);
+		shader1->set_uniform_1int("gbuffer_id", tex_id);
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, tex_id);
-		screen_shader->set_texture("screenTexture", 0);
-
+		glBindTexture(GL_TEXTURE_2D, gbuffer[0]);
+		shader1->set_texture("gPosition", 0);
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, 0);
-		screen_shader->set_texture("blurTexture", 1);
+		glBindTexture(GL_TEXTURE_2D, gbuffer[1]);
+		shader1->set_texture("gNormal", 1);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, gbuffer[2]);
+		shader1->set_texture("gAlbedoSpecular", 2);
+		
+
 
 		glBindVertexArray(screenVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -310,9 +340,9 @@ int main() {
 		glfwPollEvents();
 	}
 
-	objshader->delete_program();
+	gbuffer_shader->delete_program();
 	lightingshader->delete_program();
-	delete objshader;
+	delete gbuffer_shader;
 	delete lightingshader;
 	LightManager::destory_all_lights();
 	ModelManger::destroy_all_models();
