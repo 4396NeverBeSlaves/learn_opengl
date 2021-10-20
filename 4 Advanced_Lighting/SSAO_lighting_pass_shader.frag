@@ -29,7 +29,7 @@ struct SpotLight{
 };
 
 
-uniform sampler2D gPosition;
+uniform sampler2D gPositionDepth;
 uniform sampler2D gNormal;
 uniform sampler2D gAlbedoSpecular;
 uniform sampler2D screenTexture;
@@ -51,7 +51,7 @@ out vec4 FragColor;
 const float shininess=96.078431;
 
 vec3 cal_direction_light(DirectionLight light){
-	vec3 frag_world_pos=texture(gPosition,texcoord).xyz;
+	vec3 frag_world_pos=texture(gPositionDepth,texcoord).xyz;
 	vec3 normal=texture(gNormal,texcoord).xyz;
 	vec4 albedo_spec=texture(gAlbedoSpecular,texcoord);
 	vec3 albedo=albedo_spec.rgb;
@@ -78,7 +78,7 @@ vec3 cal_direction_light(DirectionLight light){
 }
 
 vec3 cal_point_light(PointLight light){
-	vec3 frag_world_pos=texture(gPosition,texcoord).xyz;
+	vec3 frag_world_pos=texture(gPositionDepth,texcoord).xyz;
 	vec3 normal=texture(gNormal,texcoord).xyz;
 	vec4 albedo_spec=texture(gAlbedoSpecular,texcoord);
 	vec3 albedo=albedo_spec.rgb;
@@ -104,7 +104,7 @@ vec3 cal_point_light(PointLight light){
 	return (ambient+diffuse+specular)*attenuation;
 }
 vec3 cal_spot_light(SpotLight light){
-	vec3 frag_world_pos=texture(gPosition,texcoord).xyz;
+	vec3 frag_world_pos=texture(gPositionDepth,texcoord).xyz;
 	vec3 normal=texture(gNormal,texcoord).xyz;
 	vec4 albedo_spec=texture(gAlbedoSpecular,texcoord);
 	vec3 albedo=albedo_spec.rgb;
@@ -158,7 +158,7 @@ void main(){
 
 	if(check_gbuffer){
 		if(gbuffer_id==0){
-			FragColor=texture(gPosition,texcoord);
+			FragColor=vec4(texture(gPositionDepth,texcoord).rgb,1.0);
 			return;
 		}else if(gbuffer_id==1){
 			FragColor=texture(gNormal,texcoord);
