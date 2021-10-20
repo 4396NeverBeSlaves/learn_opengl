@@ -20,7 +20,7 @@
 #include"ModelManager.h"
 #include"LightSettingUI.h"
 
-namespace deferred_shading_{
+//namespace _SSAO_{
 using namespace std;
 using namespace glm;
 
@@ -31,7 +31,7 @@ Model* light_box;
 
 const int WIDTH = 900;
 const int HEIGHT = 900;
-vec3 cam_pos(10, 10, 40);
+vec3 cam_pos(1.6, 10, 10);
 vec3 cam_dir(0, 0, -1);
 vec3 cam_up(0, 1, 0);
 Camera cam(cam_pos, cam_dir, cam_up);
@@ -115,7 +115,7 @@ int main() {
 		return -1;
 	}
 
-	//glfwSwapInterval(1);
+	glfwSwapInterval(1);
 	glViewport(0, 0, WIDTH, HEIGHT);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glEnable(GL_DEPTH_TEST);
@@ -136,46 +136,25 @@ int main() {
 
 	float time1 = glfwGetTime();
 
-	lightingshader = new Shader(R"(..\4 Advanced_Lighting\deferred_shading_light_shader.vert)", R"(..\4 Advanced_Lighting\deferred_shading_light_shader.frag)");
+	lightingshader = new Shader(R"(..\4 Advanced_Lighting\SSAO_light_shader.vert)", R"(..\4 Advanced_Lighting\SSAO_light_shader.frag)");
 	light_box = new Model(R"(..\Assets\box.obj)", lightingshader);
 
-	Shader* obj_shader = new Shader(R"(..\4 Advanced_Lighting\deferred_shading_obj_shader.vert)", R"(..\4 Advanced_Lighting\deferred_shading_obj_shader.frag)");
-	Shader* screen_shader = new Shader(R"(..\4 Advanced_Lighting\deferred_shading_screen_shader.vert)", R"(..\4 Advanced_Lighting\deferred_shading_screen_shader.frag)");
 
-	Shader* gbuffer_shader = new Shader(R"(..\4 Advanced_Lighting\deferred_shading_gbuffer_shader.vert)", R"(..\4 Advanced_Lighting\deferred_shading_gbuffer_shader.frag)");
-	Shader* lighting_pass_shader = new Shader(R"(..\4 Advanced_Lighting\deferred_shading_lighting_pass_shader.vert)", R"(..\4 Advanced_Lighting\deferred_shading_lighting_pass_shader.frag)");
-	
-	Shader* shader0 = obj_shader;
-	Shader* shader1 = screen_shader;
+	Shader* gbuffer_shader = new Shader(R"(..\4 Advanced_Lighting\SSAO_gbuffer_shader.vert)", R"(..\4 Advanced_Lighting\SSAO_gbuffer_shader.frag)");
+	Shader* lighting_pass_shader = new Shader(R"(..\4 Advanced_Lighting\SSAO_lighting_pass_shader.vert)", R"(..\4 Advanced_Lighting\SSAO_lighting_pass_shader.frag)");
 
-	//Model* nanosuit = new Model(R"(..\Assets\nanosuit\nanosuit.obj)", shader0);
 
-	for (size_t i = 0; i < 9; i++) {
-		ModelManger::add_model(new Model(R"(..\Assets\nanosuit\nanosuit.obj)", shader0));
-	}
-	
+	Model* nanosuit = new Model(R"(..\Assets\nanosuit\nanosuit.obj)", gbuffer_shader);
+	ModelManger::add_model(nanosuit);
+
 	vec3 light_coef(1.0, 0.027, 0.0028);
 
-	vec3 white_light = vec3(1.0, 1.0, 1.0);
+	vec3 white_light = vec3(2.0, 2.0, 2.0);
 	LightManager::create_point_light(light_box, white_light, vec3(0.0, 10.0, 4.0), light_coef);
-	LightManager::create_point_light(light_box, vec3(1.0, 0.0, 0.0), vec3(7.0, 10.0, 4.0), light_coef);
-	LightManager::create_point_light(light_box, vec3(0.0, 1.0, 0.0), vec3(14.0, 10.0, 4.0), light_coef);
-	LightManager::create_point_light(light_box, vec3(0.0, 0.0, 1.0), vec3(21.0, 10.0, 4.0), light_coef);
+	//LightManager::create_point_light(light_box, vec3(1.0, 0.0, 0.0), vec3(7.0, 10.0, 4.0), light_coef);
+	//LightManager::create_point_light(light_box, vec3(0.0, 1.0, 0.0), vec3(14.0, 10.0, 4.0), light_coef);
+	//LightManager::create_point_light(light_box, vec3(0.0, 0.0, 1.0), vec3(21.0, 10.0, 4.0), light_coef);
 
-	for (size_t i = 0; i < 3; i++) {
-		for (size_t j = 0; j < 3; j++) {
-			for (size_t k = 0; k < 3; k++) {
-				vec3 c;
-				float t = glfwGetTime();
-				c.x = sin(radians(t * 10000+ i)) / 2 + 0.5;
-				c.y = sin(radians(t * 10000+ 120 + j)) / 2 + 0.5;
-				c.z = sin(radians(t * 10000+ 240 + k)) / 2 + 0.5;
-				cout <<t<<" "<< c.x << " " << c.y << " " << c.z << endl;
-				vec3 p = vec3(-6, -2, -6) + vec3(i * 10, j * 10, k * 10);;
-				LightManager::create_point_light(light_box, c * 1.0f, p, light_coef);
-			}
-		}
-	}
 	unsigned int gbuffer[3], depthRBO, gframebuffer;
 	unsigned int screenVAO, screenVBO;
 	{
@@ -253,28 +232,12 @@ int main() {
 			ImGui::SliderFloat("exposure", &exposure, 0.1, 10.0, "%.1f");
 		}
 		ImGui::Checkbox("check gbuffer", &check_gbuffer);
-		if(check_gbuffer){
+		if (check_gbuffer) {
 			ImGui::Separator();
 			ImGui::RadioButton("gbuffer position", &tex_id, 0);
 			ImGui::RadioButton("gbuffer normal", &tex_id, 1);
 			ImGui::RadioButton("gbuffer albedo & specular", &tex_id, 2);
 			ImGui::Separator();
-		}
-		ImGui::Checkbox("forward shading", &use_forward_shading);
-		if (use_forward_shading) {
-			lightingshader->use();
-			lightingshader->set_uniform_1b("forward_shading", true);
-			shader0 = obj_shader;
-			shader1 = screen_shader;
-		}
-		else {
-			lightingshader->use();
-			lightingshader->set_uniform_1b("forward_shading", false);
-			shader0 = gbuffer_shader;
-			shader1 = lighting_pass_shader;
-		}
-		for (auto& m : ModelManger::models) {
-			m->shader = shader0;
 		}
 		ImGui::End();
 		ImGui::Render();
@@ -282,7 +245,7 @@ int main() {
 		one_second += delta_time;
 		frame++;
 		if (one_second >= 1.0) {
-			string title = format("Deferred Shading. [{:6.1f}FPS, {:5.2f}ms] [FOV: {:4.1f}] [Yaw:{:7.1f}, Pitch:{:5.1f}] [Position:{:5.1f} {:5.1f} {:5.1f}, Direction:{:4.1f} {:4.1f} {:4.1f}]",
+			string title = format("SSAO. [{:6.1f}FPS, {:5.2f}ms] [FOV: {:4.1f}] [Yaw:{:7.1f}, Pitch:{:5.1f}] [Position:{:5.1f} {:5.1f} {:5.1f}, Direction:{:4.1f} {:4.1f} {:4.1f}]",
 				frame / one_second, one_second / frame * 1000, cam.fov, cam.yaw_, cam.pitch_, cam.cam_pos.x, cam.cam_pos.y, cam.cam_pos.z, cam.cam_dir.x, cam.cam_dir.y, cam.cam_dir.z);
 			glfwSetWindowTitle(w, title.c_str());
 			one_second = 0.0;
@@ -294,42 +257,34 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		LightManager::draw();
-		if (use_forward_shading)
-			LightManager::update_lighting_info_in_obj_shader(shader0);
-		else
-			LightManager::update_lighting_info_in_obj_shader(shader1);
+		LightManager::update_lighting_info_in_obj_shader(lighting_pass_shader);
 
-		shader0->use();
-		shader0->set_matrix("view", cam.get_view_matrix());
-		shader0->set_matrix("projection", perspective((float)radians(cam.fov), (float)WIDTH / HEIGHT, 0.1f, 100.0f));
-		shader0->set_uniform_3fv("eye_pos", cam.cam_pos);
-		for (size_t i = 0; i < 9; i++) {
-			ModelManger::models[i]->translate(vec3((i % 3)*10,0.0, (i / 3)*10));
-		}
+		gbuffer_shader->use();
+		gbuffer_shader->set_matrix("view", cam.get_view_matrix());
+		gbuffer_shader->set_matrix("projection", perspective((float)radians(cam.fov), (float)WIDTH / HEIGHT, 0.1f, 100.0f));
+		gbuffer_shader->set_uniform_3fv("eye_pos", cam.cam_pos);
 		ModelManger::draw();
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearColor(0, 0, 0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		shader1->use();
-		shader1->set_uniform_3fv("eye_pos", cam.cam_pos);
-		shader1->set_uniform_1b("use_gamma", gamma);
-		shader1->set_uniform_1b("use_hdr", hdr);
-		shader1->set_uniform_1f("exposure", exposure);
-		shader1->set_uniform_1f("check_gbuffer", check_gbuffer);
-		shader1->set_uniform_1int("gbuffer_id", tex_id);
+		lighting_pass_shader->use();
+		lighting_pass_shader->set_uniform_3fv("eye_pos", cam.cam_pos);
+		lighting_pass_shader->set_uniform_1b("use_gamma", gamma);
+		lighting_pass_shader->set_uniform_1b("use_hdr", hdr);
+		lighting_pass_shader->set_uniform_1f("exposure", exposure);
+		lighting_pass_shader->set_uniform_1f("check_gbuffer", check_gbuffer);
+		lighting_pass_shader->set_uniform_1int("gbuffer_id", tex_id);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, gbuffer[0]);
-		shader1->set_texture("gPosition", 0);
+		lighting_pass_shader->set_texture("gPosition", 0);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, gbuffer[1]);
-		shader1->set_texture("gNormal", 1);
+		lighting_pass_shader->set_texture("gNormal", 1);
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, gbuffer[2]);
-		shader1->set_texture("gAlbedoSpecular", 2);
-		
-
+		lighting_pass_shader->set_texture("gAlbedoSpecular", 2);
 
 		glBindVertexArray(screenVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -352,4 +307,4 @@ int main() {
 	glfwTerminate();
 	return 0;
 }
-}
+//}

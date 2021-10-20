@@ -168,6 +168,7 @@
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="shadow_mapping.cpp" />
     <ClCompile Include="shadow_mapping_imgui.cpp" />
+    <ClCompile Include="SSAO.cpp" />
     <ClCompile Include="stb_img.cpp" />
     <ClCompile Include="Texture.cpp" />
   </ItemGroup>
@@ -222,6 +223,12 @@
     <None Include="shadow_mapping_obj_shader.vert" />
     <None Include="shadow_mapping_screen_shader.frag" />
     <None Include="shadow_mapping_screen_shader.vert" />
+    <None Include="SSAO_gbuffer_shader.frag" />
+    <None Include="SSAO_gbuffer_shader.vert" />
+    <None Include="SSAO_lighting_pass_shader.frag" />
+    <None Include="SSAO_lighting_pass_shader.vert" />
+    <None Include="SSAO_light_shader.frag" />
+    <None Include="SSAO_light_shader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

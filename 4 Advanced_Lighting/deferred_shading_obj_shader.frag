@@ -36,7 +36,7 @@ in vec2 texcoord;
 in vec3 normal;
 
 #define MAX_DIRECTION_LIGHTS_NUM 16
-#define MAX_POINT_LIGHTS_NUM 64
+#define MAX_POINT_LIGHTS_NUM 68
 #define MAX_SPOT_LIGHTS_NUM 16
 
 uniform float time;

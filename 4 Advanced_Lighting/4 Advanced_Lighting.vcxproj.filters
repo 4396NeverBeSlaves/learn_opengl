@@ -37,6 +37,9 @@
     <Filter Include="资源文件\deferred_shading">
       <UniqueIdentifier>{36620cc3-d994-4653-8f11-b4c67f013769}</UniqueIdentifier>
     </Filter>
+    <Filter Include="资源文件\SSAO">
+      <UniqueIdentifier>{bfc1d8da-ea95-4344-a940-c50318d05a95}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
@@ -120,6 +123,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="deferred_shading.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="SSAO.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -273,6 +279,24 @@
     </None>
     <None Include="deferred_shading_screen_shader.vert">
       <Filter>资源文件\deferred_shading</Filter>
+    </None>
+    <None Include="SSAO_gbuffer_shader.frag">
+      <Filter>资源文件\SSAO</Filter>
+    </None>
+    <None Include="SSAO_gbuffer_shader.vert">
+      <Filter>资源文件\SSAO</Filter>
+    </None>
+    <None Include="SSAO_light_shader.frag">
+      <Filter>资源文件\SSAO</Filter>
+    </None>
+    <None Include="SSAO_light_shader.vert">
+      <Filter>资源文件\SSAO</Filter>
+    </None>
+    <None Include="SSAO_lighting_pass_shader.frag">
+      <Filter>资源文件\SSAO</Filter>
+    </None>
+    <None Include="SSAO_lighting_pass_shader.vert">
+      <Filter>资源文件\SSAO</Filter>
     </None>
   </ItemGroup>
 </Project>
