@@ -1,6 +1,7 @@
 #include<iostream>
 #include<format>
 #include<vector>
+#include<random>
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
 #include<glm/glm.hpp>
@@ -102,7 +103,7 @@ void init() {
 }
 
 int main() {
-
+	
 	init();
 	GLFWwindow* w = glfwCreateWindow(WIDTH, HEIGHT, "Lighting.", NULL, NULL);
 	if (!w) {
@@ -141,19 +142,23 @@ int main() {
 
 
 	Shader* gbuffer_shader = new Shader(R"(..\4 Advanced_Lighting\SSAO_gbuffer_shader.vert)", R"(..\4 Advanced_Lighting\SSAO_gbuffer_shader.frag)");
+	Shader* ssao_shader=new Shader(R"(..\4 Advanced_Lighting\SSAO_ssao_shader.vert)", R"(..\4 Advanced_Lighting\SSAO_ssao_shader.frag)");
+	Shader* ssao_blur_shader=new Shader(R"(..\4 Advanced_Lighting\SSAO_ssao_blur_shader.vert)", R"(..\4 Advanced_Lighting\SSAO_ssao_blur_shader.frag)");
 	Shader* lighting_pass_shader = new Shader(R"(..\4 Advanced_Lighting\SSAO_lighting_pass_shader.vert)", R"(..\4 Advanced_Lighting\SSAO_lighting_pass_shader.frag)");
 
 
 	Model* nanosuit = new Model(R"(..\Assets\nanosuit\nanosuit.obj)", gbuffer_shader);
+	Model* plane = new Model(R"(..\Assets\plane.obj)", gbuffer_shader);
 	ModelManger::add_model(nanosuit);
+	ModelManger::add_model(plane);
 
 	vec3 light_coef(1.0, 0.027, 0.0028);
 
-	vec3 white_light = vec3(2.0, 2.0, 2.0);
-	LightManager::create_point_light(light_box, white_light, vec3(0.0, 10.0, 4.0), light_coef);
-	LightManager::create_point_light(light_box, vec3(1.0, 0.0, 0.0), vec3(7.0, 10.0, 4.0), light_coef);
-	LightManager::create_point_light(light_box, vec3(0.0, 1.0, 0.0), vec3(14.0, 10.0, 4.0), light_coef);
-	LightManager::create_point_light(light_box, vec3(0.0, 0.0, 1.0), vec3(21.0, 10.0, 4.0), light_coef);
+	vec3 white_light = vec3(4.0, 4.0, 4.0);
+	LightManager::create_point_light(light_box, white_light, vec3(7.3, 2.8, -12), light_coef);
+	//LightManager::create_point_light(light_box, vec3(1.0, 0.0, 0.0), vec3(7.0, 10.0, 4.0), light_coef);
+	//LightManager::create_point_light(light_box, vec3(0.0, 1.0, 0.0), vec3(14.0, 10.0, 4.0), light_coef);
+	//LightManager::create_point_light(light_box, vec3(0.0, 0.0, 1.0), vec3(21.0, 10.0, 4.0), light_coef);
 
 	unsigned int gbuffer[3], depthRBO, gframebuffer;
 	unsigned int screenVAO, screenVBO;
@@ -187,24 +192,24 @@ int main() {
 		glBindTexture(GL_TEXTURE_2D, gbuffer[0]);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, WIDTH, HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, WIDTH, HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gbuffer[0], 0);
 		
 		glBindTexture(GL_TEXTURE_2D, gbuffer[1]);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, WIDTH, HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gbuffer[1], 0);
 
 		glBindTexture(GL_TEXTURE_2D, gbuffer[2]);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, WIDTH, HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gbuffer[2], 0);
 		GLenum bufs[] = { GL_COLOR_ATTACHMENT0,GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
@@ -219,12 +224,78 @@ int main() {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
+	unsigned int SSAO_framebuffer, ssao_tex;
+	{
+		glGenFramebuffers(1, &SSAO_framebuffer);
+		glBindFramebuffer(GL_FRAMEBUFFER, SSAO_framebuffer);
+		glGenTextures(1, &ssao_tex);
+		glBindTexture(GL_TEXTURE_2D, ssao_tex);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, WIDTH, HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ssao_tex, 0);
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			cout << "Framebuffer didn't complete!" << endl;
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	unsigned int SSAOblur_framebuffer, ssaoblur_tex;
+	{
+		glGenFramebuffers(1, &SSAOblur_framebuffer);
+		glBindFramebuffer(GL_FRAMEBUFFER, SSAOblur_framebuffer);
+		glGenTextures(1, &ssaoblur_tex);
+		glBindTexture(GL_TEXTURE_2D, ssaoblur_tex);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, WIDTH, HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ssaoblur_tex, 0);
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			cout << "Framebuffer didn't complete!" << endl;
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	uniform_real_distribution<float> random_float(0.0, 1.0);
+	default_random_engine eng;
+	vector<vec3> sampling_kernel;
+	vector<vec3> noises;
+	const int sampling_times = 64;
+	for (int i = 0; i < sampling_times; i++) {
+		vec3 sample = vec3(random_float(eng)*2.0-1.0, random_float(eng) * 2.0 - 1.0, random_float(eng));
+		sample = normalize(sample);
+		sample *= random_float(eng);
+		float scale = i * 1.0 / sampling_times;
+		scale = 0.1 + scale * scale * 0.9;
+		sample *= scale;
+		sampling_kernel.push_back(sample);
+	}
+	for (size_t i = 0; i < 16; i++) {
+		vec3 noise = vec3(random_float(eng)*2.0-1.0, random_float(eng) * 2.0 - 1.0, 0.0);
+		noises.push_back(noise);
+	}
+	unsigned int noises_texture;
+	glGenTextures(1, &noises_texture);
+	glBindTexture(GL_TEXTURE_2D, noises_texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, 4, 4, 0, GL_RGB, GL_FLOAT, &noises[0]);
+	glBindTexture(GL_TEXTURE_2D,0);
+		
 	bool gamma = false;
 	bool hdr = false;
 	float exposure = 1.0;
-	bool check_gbuffer = false;
+	bool check_texture = false;
 	int tex_id = 0;
-	bool use_forward_shading = true;
+	bool use_AO = false;
+	bool smooth_edge = false;
+	float sampling_radius = 1.0;
+	vec3 nanosuit_t(0,1.5,0);
+	float nanosuit_r = -90;
 	float one_second = 0;
 	int frame = 0;
 	while (!glfwWindowShouldClose(w)) {
@@ -233,20 +304,28 @@ int main() {
 		ImGui::NewFrame();
 		LightSettingUI::display();
 		ImGui::Begin("hdr");
-		ImGui::SliderFloat3("white light", value_ptr(LightManager::lights[0]->color), 1, 200, "%.f");
 		ImGui::Checkbox("gamma", &gamma);
 		ImGui::Checkbox("hdr", &hdr);
 		if (hdr) {
 			ImGui::SliderFloat("exposure", &exposure, 0.1, 10.0, "%.1f");
 		}
-		ImGui::Checkbox("check gbuffer", &check_gbuffer);
-		if (check_gbuffer) {
+		ImGui::Checkbox("check_texture", &check_texture);
+		if (check_texture) {
 			ImGui::Separator();
-			ImGui::RadioButton("gbuffer position", &tex_id, 0);
-			ImGui::RadioButton("gbuffer normal", &tex_id, 1);
-			ImGui::RadioButton("gbuffer albedo & specular", &tex_id, 2);
+			ImGui::RadioButton("ssao ", &tex_id, 0);
+			ImGui::RadioButton("ssao blur", &tex_id, 1);
+			ImGui::RadioButton("gbuffer position", &tex_id, 2);
+			ImGui::RadioButton("gbuffer normal", &tex_id, 3);
+			ImGui::RadioButton("gbuffer albedo & specular", &tex_id, 4);
 			ImGui::Separator();
 		}
+		ImGui::Checkbox("AO", &use_AO);
+		ImGui::SliderFloat("sampling_radius", &sampling_radius, 0.1, 5, "%.1f");
+		ImGui::Checkbox("smooth_edge", &smooth_edge);
+		ImGui::SliderFloat("nanosuit pos y", &nanosuit_t.y,-2,2,"%.2f");
+		ImGui::SliderFloat("nanosuit rotate", &nanosuit_r,-180,180,"%.f");
+		ModelManger::models[0]->translate(nanosuit_t);
+		ModelManger::models[0]->rotate(radians(nanosuit_r), vec3(1,0,0));
 		ImGui::End();
 		ImGui::Render();
 		delta_time = get_delta_time();
@@ -264,26 +343,65 @@ int main() {
 		glClearColor(background_color.r, background_color.g, background_color.b, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		
-		
-
+	
 		gbuffer_shader->use();
 		gbuffer_shader->set_matrix("view", cam.get_view_matrix());
 		gbuffer_shader->set_matrix("projection", perspective((float)radians(cam.fov), (float)WIDTH / HEIGHT, 0.1f, 100.0f));
 		gbuffer_shader->set_uniform_3fv("eye_pos", cam.cam_pos);
 		ModelManger::draw();
 
+		glBindFramebuffer(GL_FRAMEBUFFER, SSAO_framebuffer);
+		glClearColor(0, 0, 0, 1.0);
+		glClear(GL_COLOR_BUFFER_BIT );
+
+		ssao_shader->use();
+		ssao_shader->set_matrix("projection", perspective((float)radians(cam.fov), (float)WIDTH / HEIGHT, 0.1f, 100.0f));
+		ssao_shader->set_uniform_1b("smooth_edge", smooth_edge);
+		ssao_shader->set_uniform_1f("sampling_radius", sampling_radius);
+		for (size_t i = 0; i < sampling_times; i++) {
+			ssao_shader->set_uniform_3fv(format("sampling_kernel[{:d}]",i), sampling_kernel[i]);
+		}
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, gbuffer[0]);
+		ssao_shader->set_texture("gPosition", 0);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, gbuffer[1]);
+		ssao_shader->set_texture("gNormal", 1);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, noises_texture);
+		ssao_shader->set_texture("noises", 2);
+		glBindVertexArray(screenVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glBindVertexArray(0);
+
+
+		glBindFramebuffer(GL_FRAMEBUFFER, SSAOblur_framebuffer);
+		glClearColor(0, 0, 0, 1.0);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		ssao_blur_shader->use();
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, ssao_tex);
+		ssao_blur_shader->set_texture("ssaoTex", 0);
+		glBindVertexArray(screenVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glBindVertexArray(0);
+
+
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearColor(0, 0, 0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		lighting_pass_shader->use();
-		lighting_pass_shader->set_uniform_3fv("eye_pos", cam.cam_pos);
+		//lighting_pass_shader->set_uniform_3fv("eye_pos", cam.cam_pos);
 		lighting_pass_shader->set_uniform_1b("use_gamma", gamma);
 		lighting_pass_shader->set_uniform_1b("use_hdr", hdr);
+		lighting_pass_shader->set_uniform_1b("use_AO", use_AO);
 		lighting_pass_shader->set_uniform_1f("exposure", exposure);
-		lighting_pass_shader->set_uniform_1f("check_gbuffer", check_gbuffer);
-		lighting_pass_shader->set_uniform_1int("gbuffer_id", tex_id);
+		lighting_pass_shader->set_uniform_1f("check_texture", check_texture);
+		lighting_pass_shader->set_uniform_1int("texture_id", tex_id);
+		lighting_pass_shader->set_matrix("view_matrix", cam.get_view_matrix());
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, gbuffer[0]);
 		lighting_pass_shader->set_texture("gPosition", 0);
@@ -293,6 +411,12 @@ int main() {
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, gbuffer[2]);
 		lighting_pass_shader->set_texture("gAlbedoSpecular", 2);
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, ssao_tex);
+		lighting_pass_shader->set_texture("ssaoTexture", 3);
+		glActiveTexture(GL_TEXTURE4);
+		glBindTexture(GL_TEXTURE_2D, ssaoblur_tex);
+		lighting_pass_shader->set_texture("ssao_blur_Texture", 4);
 		glBindVertexArray(screenVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		glBindVertexArray(0);

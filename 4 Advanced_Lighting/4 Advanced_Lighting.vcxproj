@@ -229,6 +229,10 @@
     <None Include="SSAO_lighting_pass_shader.vert" />
     <None Include="SSAO_light_shader.frag" />
     <None Include="SSAO_light_shader.vert" />
+    <None Include="SSAO_ssao_blur_shader.frag" />
+    <None Include="SSAO_ssao_blur_shader.vert" />
+    <None Include="SSAO_ssao_shader.frag" />
+    <None Include="SSAO_ssao_shader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

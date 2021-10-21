@@ -298,5 +298,17 @@
     <None Include="SSAO_lighting_pass_shader.vert">
       <Filter>资源文件\SSAO</Filter>
     </None>
+    <None Include="SSAO_ssao_shader.vert">
+      <Filter>资源文件\SSAO</Filter>
+    </None>
+    <None Include="SSAO_ssao_shader.frag">
+      <Filter>资源文件\SSAO</Filter>
+    </None>
+    <None Include="SSAO_ssao_blur_shader.vert">
+      <Filter>资源文件\SSAO</Filter>
+    </None>
+    <None Include="SSAO_ssao_blur_shader.frag">
+      <Filter>资源文件\SSAO</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -103,6 +103,8 @@ void LightSettingUI::display() {
 			ImGui::EndTabItem();
 		}
 		ImGui::EndTabBar();
+		if (LightManager::lights.size() == 0)
+			return;
 		switch (display_ltype) {
 		case LightType::DirectionLight: {
 			bool open_status_temp = LightManager::lights[dir_light_idx]->get_open_status();
